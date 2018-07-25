@@ -1,0 +1,52 @@
+{
+  "name": "grpc-helper",
+  "version": "0.1.0-beta1",
+  "description": "grpc helper",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "npm run build && ava",
+    "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "postbuild": "cp src/health.proto dist/src && cp test/hello.proto dist/test",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.github.com:xizhibei/grpc-helper.git"
+  },
+  "author": "Xu Zhipei <xuzhipei@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=4"
+  },
+  "files": [
+    "dist/src"
+  ],
+  "typings": "dist/src/index.d.ts",
+  "ava": {
+    "files": [
+      "dist/test/**/*.test.js"
+    ]
+  },
+  "dependencies": {
+    "@grpc/proto-loader": "^0.3.0",
+    "bluebird": "^3.5.0",
+    "brakes": "^2.6.0",
+    "debug": "^3.1.0",
+    "grpc": "^1.13.0",
+    "lodash": "^4.17.4",
+    "mock-require": "^3.0.2",
+    "prom-client": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/bluebird-global": "^3.5.3",
+    "@types/debug": "^0.0.30",
+    "@types/lodash": "^4.14.91",
+    "@types/node": "^8.5.1",
+    "ava": "^0.25.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.9.2"
+  }
+}
