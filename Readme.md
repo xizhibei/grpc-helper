@@ -1,6 +1,6 @@
 # GRPC helper
 
-** WARNING: in beta !!! **
+** WARNING: under development !!! **
 
 [![Build Status](https://travis-ci.org/xizhibei/grpc-helper.svg?branch=master&style=flat)](https://travis-ci.org/xizhibei/grpc-helper)
 [![npm version](https://badge.fury.io/js/grpc-helper.svg?style=flat)](http://badge.fury.io/js/grpc-helper)
@@ -15,8 +15,19 @@
 npm i grpc-helper --save
 ```
 
+### Features
+
+- Promised unary call
+- Load balancer
+- Service health checking
+- Service discovery (static, dns srv)
+- Circuit breaker
+
 ### TODO
+- Better api
+- Doc
 - Test code
+- Consul/etcd/zk service discovery
 
 
 ### License
