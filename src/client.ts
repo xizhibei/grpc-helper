@@ -7,7 +7,7 @@ import * as debug from 'debug';
 
 
 import { GRPCHelperOpts, GRPCHelperError, GRPCHelperClient, GRPCOpts } from './common';
-import { wrapWithMetrics } from './metrics';
+import { getMetricsInterceptor } from './metrics';
 import { wrapWithBrake } from './brake';
 
 const log = debug('grpcHelper:client');
@@ -146,6 +146,15 @@ export class HelperClientCreator {
 
     const { packageName: pkg, serviceName: svc } = this.opts;
 
+    const _this = this;
+    this.grpcOpts.interceptors = [
+      function deadlineInterceptor(options: any, nextCall: any) {
+        options.deadline = _this.getDeadline(_this.opts.timeoutInMillSec);
+        return new grpc.InterceptingCall(nextCall(options));
+      },
+      getMetricsInterceptor(host),
+    ];
+
     let grpcClient: grpc.Client = new this.Service(host, this.grpcCredentials, this.grpcOpts);
     grpcClient = Promise.promisifyAll(grpcClient);
 
@@ -158,18 +167,9 @@ export class HelperClientCreator {
     };
 
     _.each(this.methodNames, (methodName) => {
-      let method = grpcClient[`${methodName}Async`].bind(grpcClient);
-
-      const _this = this;
-      client[methodName] = async function wrap(arg: any, md: grpc.Metadata = null, opt: grpc.CallOptions = <grpc.CallOptions>{}) {
-        if (!opt.deadline) {
-          opt.deadline = _this.getDeadline(_this.opts.timeoutInMillSec);
-        }
-        return method(arg, md, opt);
-      };
+      client[methodName] = grpcClient[`${methodName}Async`].bind(grpcClient);
 
       client[methodName] = wrapWithBrake(client[methodName], brake);
-      client[methodName] = wrapWithMetrics(client[methodName], pkg, svc, host, methodName);
     });
 
     return client;

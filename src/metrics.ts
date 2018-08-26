@@ -1,31 +1,31 @@
 import * as promClient from 'prom-client';
+import * as grpc from 'grpc';
 
 const histogram = new promClient.Histogram({
   name: 'grpc_response_duration_seconds',
   help: 'Histogram of grpc response in seconds',
-  labelNames: ['pkg', 'svc', 'peer', 'method', 'state'],
+  labelNames: ['peer', 'method', 'code'],
 });
 
-export function wrapWithMetrics(func: (...args) => (any), pkg: string, svc: string, peer: string, method: string) {
-  return async function(...args) {
+export function getMetricsInterceptor(peer: string) {
+  return function metricsInterceptor(options, nextCall) {
     const endTimer = histogram.startTimer({
-      pkg,
-      svc,
       peer,
-      method,
+      method: options.method_definition.path,
     });
 
-    try {
-      const rst = await func(...args);
-      endTimer({
-        state: 'success',
-      });
-      return rst;
-    } catch (e) {
-      endTimer({
-        state: 'fail',
-      });
-      throw e;
-    }
+    const requester = (new grpc.RequesterBuilder())
+        .withStart(function(metadata: grpc.Metadata, listener: grpc.Listener, next: Function) {
+          const newListener = (new grpc.ListenerBuilder())
+            .withOnReceiveStatus(function(status: grpc.StatusObject, next: Function) {
+              endTimer({
+                code: status.code,
+              });
+              next(status);
+            }).build();
+          next(metadata, newListener);
+        }).build();
+
+    return new grpc.InterceptingCall(nextCall(options), requester);
   };
 }

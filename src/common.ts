@@ -33,7 +33,9 @@ export interface GRPCHelperCheck {
 }
 
 export interface GRPCOpts {
-  [key: string]: string;
+  interceptors?: ((...args) => any)[];
+  interceptor_providers?: ((...args) => any)[];
+  [key: string]: any;
 }
 
 export interface GRPCHelperOpts {
