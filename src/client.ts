@@ -187,25 +187,27 @@ export class HelperClientCreator {
     };
 
 
-    _.each(this.serviceDefinition, (md, methodName) => {
-      client[methodName] = grpcClient[methodName].bind(grpcClient);
+    _.each(this.serviceDefinition, (md, method) => {
+      client[method] = grpcClient[method].bind(grpcClient);
+
+      // only deal with client unary call
       if (md.requestStream || md.responseStream) {
         if (md.originalName) {
-          client[md.originalName] = client[methodName];
+          client[md.originalName] = client[method];
         }
         return;
       }
 
       // keep callback style call
-      const callbackMethod = `cb${methodName}`;
+      const callbackMethod = `cb${method}`;
+      client[callbackMethod] = client[method];
 
-      // only deal with client unary call
-      client[callbackMethod] = client[methodName];
-      client[methodName] = Promise.promisify(client[methodName]);
-      client[methodName] = wrapWithBrake(client[methodName], brake);
+      // Start promisify and add brake for client unary call
+      client[method] = Promise.promisify(client[method]);
+      client[method] = wrapWithBrake(client[method], brake);
 
       if (md.originalName) {
-        client[md.originalName] = client[methodName];
+        client[md.originalName] = client[method];
       }
     });
 
