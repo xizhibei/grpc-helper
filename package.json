@@ -43,7 +43,7 @@
     "brakes": "^2.6.0",
     "debug": "^3.1.0",
     "grpc": "^1.13.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "mock-require": "^3.0.2",
     "prom-client": "^11.0.0"
   },
