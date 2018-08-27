@@ -2,6 +2,7 @@ import * as path from 'path';
 
 import * as Bluebird from 'bluebird';
 import * as debug from 'debug';
+import { each } from 'lodash';
 
 import { GRPCHelperOpts, GRPCHelperClient, GRPCHelperError } from './common';
 import { RoundRobinBalancer, Balancer } from './lb';
@@ -20,6 +21,8 @@ export interface ServiceDiscoveryOpts {
 export class GRPCHelper {
   private opts: GRPCHelperOpts;
   private lb: Balancer;
+
+  [method: string]: Function | any;
 
   constructor(opts: GRPCHelperOpts) {
 
@@ -52,6 +55,14 @@ export class GRPCHelper {
     this.lb = new RoundRobinBalancer(resolver, clientCreator);
 
     this.lb.start(addr);
+
+    const methodNames = clientCreator.getMethodNames();
+    each(methodNames, method => {
+      GRPCHelper.prototype[method] = (...args) => {
+        const client = this.lb.get();
+        return client[method](...args);
+      };
+    });
   }
 
   public async waitForReady(): Promise<void> {
@@ -64,9 +75,5 @@ export class GRPCHelper {
     const addr = sdUri.slice(idx + 3);
 
     return { type, addr };
-  }
-
-  public getClient(): GRPCHelperClient {
-    return this.lb.get();
   }
 }

@@ -19,7 +19,8 @@ export class HelperClientCreator {
   private grpcCredentials: grpc.ChannelCredentials;
   private grpcOpts: GRPCOpts;
   private Service: any;
-  private methodNames: string[];
+  private methodNames: string[] = [];
+  private serviceDefinition: protoLoader.ServiceDefinition;
 
   constructor(opts: GRPCHelperOpts) {
     this.opts = opts;
@@ -39,8 +40,28 @@ export class HelperClientCreator {
     );
     this.Service = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
 
-    const defs = packageDefinition[`${pkg}.${svc}`];
-    this.methodNames = _.keys(defs).concat(_.map(defs, 'originalName'));
+    this.serviceDefinition = packageDefinition[`${pkg}.${svc}`];
+  }
+
+  public getMethodNames(): string[] {
+    if (this.methodNames.length) {
+      return this.methodNames;
+    }
+    _.each(this.serviceDefinition, (md, methodName) => {
+      this.methodNames.push(methodName);
+      if (md.originalName) {
+        this.methodNames.push(methodName);
+      }
+
+      if (md.requestStream || md.responseStream) {
+        return;
+      }
+
+      // keep callback style call
+      const callbackMethod = `cb${methodName}`;
+      this.methodNames.push(callbackMethod);
+    });
+    return this.methodNames;
   }
 
   private setupGRPCCredentials() {
@@ -156,7 +177,6 @@ export class HelperClientCreator {
     ];
 
     let grpcClient: grpc.Client = new this.Service(host, this.grpcCredentials, this.grpcOpts);
-    grpcClient = Promise.promisifyAll(grpcClient);
 
     const brake = this.getBrake(pkg, svc, host);
 
@@ -166,10 +186,27 @@ export class HelperClientCreator {
       connected: true,
     };
 
-    _.each(this.methodNames, (methodName) => {
-      client[methodName] = grpcClient[`${methodName}Async`].bind(grpcClient);
 
+    _.each(this.serviceDefinition, (md, methodName) => {
+      client[methodName] = grpcClient[methodName].bind(grpcClient);
+      if (md.requestStream || md.responseStream) {
+        if (md.originalName) {
+          client[md.originalName] = client[methodName];
+        }
+        return;
+      }
+
+      // keep callback style call
+      const callbackMethod = `cb${methodName}`;
+
+      // only deal with client unary call
+      client[callbackMethod] = client[methodName];
+      client[methodName] = Promise.promisify(client[methodName]);
       client[methodName] = wrapWithBrake(client[methodName], brake);
+
+      if (md.originalName) {
+        client[md.originalName] = client[methodName];
+      }
     });
 
     return client;

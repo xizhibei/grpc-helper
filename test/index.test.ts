@@ -40,7 +40,7 @@ test('#sayHello dns', async t => {
 
   await helper.waitForReady();
 
-  const res = await helper.getClient().sayHello({
+  const res = await helper.SayHello({
     name: 'foo',
   });
   t.is(res.message, 'hello foo');
@@ -60,7 +60,7 @@ test('#sayHello static', async t => {
 
   await helper.waitForReady();
 
-  const res = await helper.getClient().sayHello({
+  const res = await helper.SayHello({
     name: 'foo',
   });
   t.is(res.message, 'hello foo');
