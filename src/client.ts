@@ -149,7 +149,7 @@ export class HelperClientCreator {
     const _this = this;
     this.grpcOpts.interceptors = [
       function deadlineInterceptor(options: any, nextCall: any) {
-        options.deadline = _this.getDeadline(_this.opts.timeoutInMillSec);
+        options.deadline = options.deadline || _this.getDeadline(_this.opts.timeoutInMillSec);
         return new grpc.InterceptingCall(nextCall(options));
       },
       getMetricsInterceptor(host),
