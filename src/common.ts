@@ -1,6 +1,7 @@
 import * as grpc from 'grpc';
 
 export class GRPCHelperError extends Error {
+  name: string = 'GRPCHelperError';
   detail: any;
   constructor(message?: string, detail?: any) {
     super(message);
@@ -10,9 +11,9 @@ export class GRPCHelperError extends Error {
 
 export interface GRPCHelperSslOpts {
   enable: boolean;
-  cacert: string;
-  cert: string;
-  key: string;
+  cacert?: string | Buffer;
+  cert?: string | Buffer;
+  key?: string | Buffer;
 }
 
 export interface GRPCHelperClient {
@@ -26,10 +27,7 @@ export interface GRPCHelperClient {
 
 export interface GRPCHelperCheck {
   enable: boolean;
-  timeoutInMS: number;
-  protoPath: string;
-  serviceName: string;
-  packageName: string;
+  timeoutInMS?: number;
 }
 
 export interface GRPCOpts {

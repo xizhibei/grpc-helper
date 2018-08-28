@@ -1,8 +1,11 @@
 import * as dns from 'dns';
 import { EventEmitter } from 'events';
 
+import * as Bluebird from 'bluebird';
 import * as debug from 'debug';
 import * as _ from 'lodash';
+
+Promise = Bluebird as any;
 
 const log = debug('grpcHelper:naming');
 
@@ -71,7 +74,7 @@ export class DNSWatcher extends EventEmitter implements Watcher {
   constructor(resolveAddrs: () => Promise<Address[]>) {
     super();
 
-    this.interval = 1000;
+    this.interval = 100;
     this.resolveAddrs = resolveAddrs;
 
     this.update();

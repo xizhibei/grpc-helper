@@ -1,9 +1,11 @@
+import * as fs from 'fs';
 import * as path from 'path';
 
 import * as grpc from 'grpc';
+import * as _ from 'lodash';
 import * as protoLoader from '@grpc/proto-loader';
 
-const packageDefinition = protoLoader.loadSync(
+const hello = grpc.loadPackageDefinition(protoLoader.loadSync(
   path.resolve(__dirname, './hello.proto'),
   {
     keepCase: true,
@@ -12,23 +14,62 @@ const packageDefinition = protoLoader.loadSync(
     defaults: true,
     oneofs: true
   }
-);
+)).helloworld;
 
+const test = grpc.loadPackageDefinition(protoLoader.loadSync(
+  path.resolve(__dirname, './test.proto'),
+  {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  }
+)).test;
 
-const hello = grpc.loadPackageDefinition(packageDefinition).helloworld;
+const health = grpc.loadPackageDefinition(protoLoader.loadSync(
+  path.resolve(__dirname, '../src/health.proto'),
+  {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  }
+)).grpc.health.v1;
 
-export function startServer() {
+export function startServer(id, secure = false, healthCheck = null) {
   const server = new grpc.Server();
   server.addService(hello.Greeter.service, {
     SayHello(call, callback) {
       const name = call.request.name;
       callback(null, {
         message: `hello ${name}`,
+        serverId: id,
       });
     },
   });
 
-  const port = server.bind('0.0.0.0:0', grpc.ServerCredentials.createInsecure());
+  const check = healthCheck || function Check(call, callback) {
+    const service = call.request.service;
+    callback(null, {
+      status: 'SERVING',
+    });
+  };
+
+  server.addService(health.Health.service, {
+    Check: check,
+  });
+
+  let creds = grpc.ServerCredentials.createInsecure();
+  if (secure) {
+    creds = grpc.ServerCredentials.createSsl(null, [<grpc.KeyCertPair>{
+      private_key: fs.readFileSync(path.resolve(__dirname, './fixtures/server.key')),
+      cert_chain: fs.readFileSync(path.resolve(__dirname, './fixtures/server.crt')),
+    }]);
+  }
+
+  const port = server.bind('localhost:0', creds);
   server.start();
 
   function stopServer() {
@@ -36,6 +77,62 @@ export function startServer() {
   }
 
   return { port, stopServer };
+}
+
+export function startMethoodTestServer() {
+  const server = new grpc.Server();
+  server.addService(test.TestService.service, {
+    unary(call, cb) {
+      call.sendMetadata(call.metadata);
+      cb(null, {});
+    },
+    clientStream(stream, cb) {
+      stream.on('data', function(data) {});
+      stream.on('end', function() {
+        stream.sendMetadata(stream.metadata);
+        cb(null, {});
+      });
+    },
+    serverStream(stream) {
+      stream.sendMetadata(stream.metadata);
+      stream.end();
+    },
+    bidiStream(stream) {
+      stream.on('data', function(data) {});
+      stream.on('end', function() {
+        stream.sendMetadata(stream.metadata);
+        stream.end();
+      });
+    },
+  });
+
+  const port = server.bind('localhost:0', grpc.ServerCredentials.createInsecure());
+  server.start();
+
+  function stopServer() {
+    server.forceShutdown();
+  }
+
+  return { port, stopServer };
+}
+
+export function startServers(num: number, secure = false) {
+  const servers = [];
+  _.times(num, i => {
+    const { port, stopServer } = startServer(i, secure);
+    servers.push({
+      id: i,
+      port,
+      stopServer,
+    });
+  });
+
+  return {
+    servers,
+    stopServers() {
+      _.each(servers, s => s.stopServer());
+    },
+  };
 }
 
 

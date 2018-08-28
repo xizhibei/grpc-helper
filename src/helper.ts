@@ -4,7 +4,7 @@ import * as Bluebird from 'bluebird';
 import * as debug from 'debug';
 import { each } from 'lodash';
 
-import { GRPCHelperOpts, GRPCHelperClient, GRPCHelperError } from './common';
+import { GRPCHelperOpts, GRPCHelperError } from './common';
 import { RoundRobinBalancer, Balancer } from './lb';
 import { HelperClientCreator } from './client';
 import { Resolver, DNSResolver, StaticResolver } from './naming';
@@ -34,8 +34,6 @@ export class GRPCHelper {
       enable: false,
       timeoutInMS: 5000,
       protoPath: path.resolve(__dirname, 'health.proto'),
-      serviceName: 'Health',
-      packageName: 'grpc.health.v1',
     }, opts.healthCheck);
 
     const clientCreator = new HelperClientCreator(this.opts);
@@ -52,13 +50,14 @@ export class GRPCHelper {
       throw new GRPCHelperError(`resolver not implemented: ${type}`);
     }
 
-    this.lb = new RoundRobinBalancer(resolver, clientCreator);
+    const createClient = clientCreator.createClientFromAddress.bind(clientCreator);
+    this.lb = new RoundRobinBalancer(resolver, createClient);
 
     this.lb.start(addr);
 
     const methodNames = clientCreator.getMethodNames();
     each(methodNames, method => {
-      GRPCHelper.prototype[method] = (...args) => {
+      this[method] = (...args) => {
         const client = this.lb.get();
         return client[method](...args);
       };

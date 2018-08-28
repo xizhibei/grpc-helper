@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package test;
+
+message Request {
+  bool error = 1;
+  string message = 2;
+}
+
+message Response {
+  int32 count = 1;
+}
+
+service TestService {
+  rpc Unary (Request) returns (Response) {
+  }
+
+  rpc ClientStream (stream Request) returns (Response) {
+  }
+
+  rpc ServerStream (Request) returns (stream Response) {
+  }
+
+  rpc BidiStream (stream Request) returns (stream Response) {
+  }
+}

@@ -1,0 +1,21 @@
+language: node_js
+node_js:
+- 10
+- 8
+- 6
+- 4
+cache:
+  directories:
+  - $HOME/.npm
+  - $HOME/.yarn-cache
+script:
+- npm run lint
+- npm run coverage-ci
+deploy:
+  provider: npm
+  email: xuzhipei@gmail.com
+  api_key:
+    secure: mncEjXwRU0Eh0LzIMmALCj6zcAi1tovsWdowuGyqZcn6hmMJ7svOphb+1BICqSQVnHKV+N3CcbZ5Jum9IgENSStyrDv4P9UVDcOkgUuLCgIPi6LaYtmd1OntNtRk4ocLiyhGSq2Q8NfAaOX0yuh1xbgvmHKMfBNU3N8kLgq2J7PTQY7vsEuE2k1beb5LTGQRIkNXTPJABaR1hPdaYTOAf5/uttUcTiht2lRIiE0+vYahdf/CJocXUn4FKlCG6LKaxrHeSCj95A+8tZXKrHqUKRC4GntxglIckk4FEnaNnCIEuH+xAaViPLY7fiLbZ74/3r3pL1MZakuP8+gg4944R4wfOXhcW9RbDlpDyukUizO75ZYgPr7ucYD+gRfcr5KKNdjXmH6O00G5IJr295Czq0i3WRZSVq6r0ZJZY7PsLZlhTQe9sZTG5V+3Lt7xhEAy50OcfjSwQPsFRQC+ngZhIw9O5mZJSFnfgqV8QQizltUZQ9nqpDKySMJ9+CX8jrKazAvkuf6W816oxS1ZTlQH3smAts+IQw4456F4QE7kI0DL9O5TxlPbwbijDYUH1VFxvjf3RlbrfdxqqBkdaJntDXzlfGDct9CQVrdtWl/eZ9HFo4x8yV4hI9FCA13e3Q+1S9Vo75rG1Sfd9ThUdUZFgUkPits2vMr/5DMaqqqEYcE=
+  on:
+    tags: true
+    repo: xizhibei/grpc-helper

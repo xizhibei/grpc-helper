@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import * as _ from 'lodash';
 import * as Bluebird from 'bluebird';
 import * as Brakes from 'brakes';
@@ -10,6 +12,7 @@ import { GRPCHelperOpts, GRPCHelperError, GRPCHelperClient, GRPCOpts } from './c
 import { getMetricsInterceptor } from './metrics';
 import { wrapWithBrake } from './brake';
 import { getDeadlineInterceptor } from './interceptor';
+import { getBrakeHealthCheckFunc } from './health';
 
 const log = debug('grpcHelper:client');
 
@@ -111,56 +114,14 @@ export class HelperClientCreator {
     };
 
     if (this.opts.healthCheck.enable) {
-      brakeOpts.healthCheck = this.getBrakeHealthCheckFunc(name, host);
+      brakeOpts.healthCheck = getBrakeHealthCheckFunc(name, host, {
+        timeoutInMS: this.opts.healthCheck.timeoutInMS,
+        grpcCredentials: this.grpcCredentials,
+        grpcOpts: this.grpcOpts,
+      });
     }
 
     return new Brakes(Object.assign(brakeOpts, this.opts.brakeOpts));
-  }
-
-  public getDeadline(timeoutInMS: number): grpc.Deadline {
-    return new Date(_.now() + timeoutInMS);
-  }
-
-  private getBrakeHealthCheckFunc(service: string, host: string): () => void {
-    const { protoPath: proto, packageName: pkg, serviceName: svc } = this.opts.healthCheck;
-
-    log('get health check func for %s %s', service, host);
-
-    const packageDefinition = protoLoader.loadSync(
-      proto,
-      {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true
-      }
-    );
-
-    const HealthService = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
-
-    let healthClient = new HealthService(host, this.grpcCredentials, this.grpcOpts);
-    healthClient = Promise.promisifyAll(healthClient);
-
-    const _this = this;
-
-    return async function healthCheck() {
-      let rst;
-      try {
-        const deadline = _this.getDeadline(this.opts.healthCheck.timeoutInMS);
-
-        rst = await healthClient.checkAsync({ service }, { deadline });
-
-        log('health check success: %j', JSON.stringify(rst));
-
-        if (rst.status === 'SERVING') return;
-      } catch (e) {
-        log('health check fail %j', e);
-        throw e;
-      }
-
-      throw new GRPCHelperError('health check fail', rst);
-    };
   }
 
   public createClientFromAddress(host: string): GRPCHelperClient {

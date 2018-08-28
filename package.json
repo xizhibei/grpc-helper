@@ -5,11 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "npm run build && ava",
+    "coverage": "nyc npm test",
     "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
+    "coverage-ci": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "build": "tsc",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
-    "postbuild": "cp src/health.proto dist/src && cp test/hello.proto dist/test",
+    "postbuild": "cp src/*.proto dist/src && cp test/*.proto dist/test && cp -r test/fixtures dist/test",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -37,6 +39,19 @@
       "dist/test/**/*.test.js"
     ]
   },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "include": [
+      "dist/src"
+    ],
+    "all": true
+  },
   "dependencies": {
     "@grpc/proto-loader": "^0.3.0",
     "bluebird": "^3.5.0",
@@ -44,7 +59,6 @@
     "debug": "^3.1.0",
     "grpc": "^1.13.0",
     "lodash": "^4.17.10",
-    "mock-require": "^3.0.2",
     "prom-client": "^11.0.0"
   },
   "devDependencies": {
@@ -53,6 +67,9 @@
     "@types/lodash": "^4.14.91",
     "@types/node": "^8.5.1",
     "ava": "^0.25.0",
+    "coveralls": "^3.0.2",
+    "mock-require": "^3.0.2",
+    "nyc": "^13.0.1",
     "tslint": "^5.8.0",
     "typescript": "^2.9.2"
   }

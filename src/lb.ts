@@ -2,15 +2,15 @@ import * as _ from 'lodash';
 import * as debug from 'debug';
 
 import { GRPCHelperClient } from './common';
-import { Address, Resolver, Watcher, UpdateOp } from './naming';
-import { HelperClientCreator } from './client';
+import { Resolver, Watcher, UpdateOp } from './naming';
 import { EventEmitter } from 'events';
 
 const log = debug('grpcHelper:lb');
 
 export interface Balancer {
   start(target: string);
-  up(addr: Address): () => void;
+  up(addr: string): () => void;
+  down(addr: string): void;
   get(): GRPCHelperClient;
   close(): Promise<void>;
   waitForReady(): Promise<void>;
@@ -21,14 +21,14 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
   private clients: GRPCHelperClient[] = [];
   private resolver: Resolver;
   private watcher: Watcher;
-  private clientCreator: HelperClientCreator;
   private isReady: boolean = false;
+  private createClient: (addr: string) => GRPCHelperClient;
 
-  constructor(resolver: Resolver, clientCreator: HelperClientCreator) {
+  constructor(resolver: Resolver, createClient: (addr: string) => GRPCHelperClient) {
     super();
 
     this.resolver = resolver;
-    this.clientCreator = clientCreator;
+    this.createClient = createClient;
   }
 
   public waitForReady(): Promise<void> {
@@ -36,10 +36,6 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
     return new Promise<void>(resolve => {
       this.once('ready', () => resolve());
     });
-  }
-
-  private createClient(addr: string): GRPCHelperClient {
-    return this.clientCreator.createClientFromAddress(addr);
   }
 
   private async watchUpdates() {
@@ -75,21 +71,21 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
     this.watchUpdates();
   }
 
-  public up(addr: Address): () => void {
+  public up(addr: string): () => void {
     _.each(this.clients, client => {
-      if (client.address === addr.addr) {
+      if (client.address === addr) {
         client.connected = true;
       }
     });
 
     return function down(): void {
       this.down(addr);
-    };
+    }.bind(this);
   }
 
-  public down(addr: Address): void {
+  public down(addr: string): void {
     _.each(this.clients, client => {
-      if (client.address === addr.addr) {
+      if (client.address === addr) {
         client.connected = false;
       }
     });
