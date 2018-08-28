@@ -9,6 +9,7 @@ import * as debug from 'debug';
 import { GRPCHelperOpts, GRPCHelperError, GRPCHelperClient, GRPCOpts } from './common';
 import { getMetricsInterceptor } from './metrics';
 import { wrapWithBrake } from './brake';
+import { getDeadlineInterceptor } from './interceptor';
 
 const log = debug('grpcHelper:client');
 
@@ -116,8 +117,8 @@ export class HelperClientCreator {
     return new Brakes(Object.assign(brakeOpts, this.opts.brakeOpts));
   }
 
-  public getDeadline(timeoutInMillSec: number): grpc.Deadline {
-    return new Date(_.now() + timeoutInMillSec);
+  public getDeadline(timeoutInMS: number): grpc.Deadline {
+    return new Date(_.now() + timeoutInMS);
   }
 
   private getBrakeHealthCheckFunc(service: string, host: string): () => void {
@@ -146,7 +147,7 @@ export class HelperClientCreator {
     return async function healthCheck() {
       let rst;
       try {
-        const deadline = _this.getDeadline(this.opts.healthCheck.timeoutInMillSec);
+        const deadline = _this.getDeadline(this.opts.healthCheck.timeoutInMS);
 
         rst = await healthClient.checkAsync({ service }, { deadline });
 
@@ -169,10 +170,7 @@ export class HelperClientCreator {
 
     const _this = this;
     this.grpcOpts.interceptors = [
-      function deadlineInterceptor(options: any, nextCall: any) {
-        options.deadline = options.deadline || _this.getDeadline(_this.opts.timeoutInMillSec);
-        return new grpc.InterceptingCall(nextCall(options));
-      },
+      getDeadlineInterceptor(_this.opts.timeoutInMS),
       getMetricsInterceptor(host),
     ];
 

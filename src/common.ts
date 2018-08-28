@@ -26,7 +26,7 @@ export interface GRPCHelperClient {
 
 export interface GRPCHelperCheck {
   enable: boolean;
-  timeoutInMillSec: number;
+  timeoutInMS: number;
   protoPath: string;
   serviceName: string;
   packageName: string;
@@ -51,7 +51,7 @@ export interface GRPCHelperOpts {
   grpcOpts?: GRPCOpts;
   sslOpts?: GRPCHelperSslOpts;
   hostNameOverride?: string;
-  timeoutInMillSec?: number;
+  timeoutInMS?: number;
   brakeOpts?: object;
   healthCheck?: GRPCHelperCheck;
 }

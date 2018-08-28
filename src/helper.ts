@@ -27,12 +27,12 @@ export class GRPCHelper {
   constructor(opts: GRPCHelperOpts) {
 
     this.opts = Object.assign({
-      timeoutInMillSec: 5000,
+      timeoutInMS: 5000,
     }, opts);
 
     this.opts.healthCheck = Object.assign({
       enable: false,
-      timeoutInMillSec: 5000,
+      timeoutInMS: 5000,
       protoPath: path.resolve(__dirname, 'health.proto'),
       serviceName: 'Health',
       packageName: 'grpc.health.v1',
