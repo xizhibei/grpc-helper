@@ -1,16 +1,23 @@
 language: node_js
+
 node_js:
-- 10
-- 8
-- 6
-- 4
+  - 10
+  - 8
+  - 6
+  - 4
+
 cache:
   directories:
   - $HOME/.npm
   - $HOME/.yarn-cache
+
+install:
+  - yarn install --ignore-engines
+
 script:
-- npm run lint
-- npm run coverage-ci
+  - npm run lint
+  - npm run coverage-ci
+
 deploy:
   provider: npm
   email: xuzhipei@gmail.com

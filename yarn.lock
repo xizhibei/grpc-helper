@@ -2771,9 +2771,9 @@ process-nextick-args@~2.0.0:
   version "2.0.0"
   resolved "http://registry.npm.taobao.org/process-nextick-args/download/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
 
-prom-client@^11.0.0:
-  version "11.1.1"
-  resolved "http://registry.npm.taobao.org/prom-client/download/prom-client-11.1.1.tgz#21b7e9dc0ceaae3c72a5ccd2e796d79bf1584eae"
+prom-client@^10.2.3:
+  version "10.2.3"
+  resolved "http://registry.npm.taobao.org/prom-client/download/prom-client-10.2.3.tgz#a51bf21c239c954a6c5be4b1361fdd380218bb41"
   dependencies:
     tdigest "^0.1.1"
 
