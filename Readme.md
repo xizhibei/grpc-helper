@@ -1,6 +1,6 @@
 # GRPC helper
 
-** WARNING: under development !!! **
+**WARNING: in beta !!!**
 
 [![Build Status](https://travis-ci.org/xizhibei/grpc-helper.svg?branch=master&style=flat)](https://travis-ci.org/xizhibei/grpc-helper)
 [![Coverage Status](https://coveralls.io/repos/github/xizhibei/grpc-helper/badge.svg?branch=master)](https://coveralls.io/github/xizhibei/grpc-helper?branch=master)
@@ -15,6 +15,11 @@
 ```bash
 npm i grpc-helper --save
 ```
+or
+
+```bash
+yarn add grpc-helper
+```
 
 ### Features
 
@@ -23,6 +28,40 @@ npm i grpc-helper --save
 - Service health checking
 - Service discovery (static, dns srv)
 - Circuit breaker
+
+### Usage
+
+#### DNS Service discovery
+```ts
+const helper = new GRPCHelper({
+  packageName: 'helloworld',
+  serviceName: 'Greeter',
+  protoPath: path.resolve(__dirname, './hello.proto'),
+  sdUri: 'dns://_http._tcp.greeter',
+});
+
+await helper.waitForReady();
+
+const res = await helper.SayHello({
+  name: 'foo',
+});
+```
+
+#### Static Service discovery
+```ts
+const helper = new GRPCHelper({
+  packageName: 'helloworld',
+  serviceName: 'Greeter',
+  protoPath: path.resolve(__dirname, './hello.proto'),
+  sdUri: 'static://localhost:50051,localhost:50052,localhost:50053',
+});
+
+await helper.waitForReady();
+
+const res = await helper.SayHello({
+  name: 'foo',
+});
+```
 
 ### TODO
 - Better api

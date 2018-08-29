@@ -6,7 +6,7 @@ import * as protoLoader from '@grpc/proto-loader';
 import * as debug from 'debug';
 
 
-import { GRPCHelperOpts, GRPCHelperClient, GRPCOpts } from './common';
+import { GRPCHelperOpts, GRPCHelperClient, GRPCOpts, BrakeOpts } from './common';
 import { getMetricsInterceptor } from './metrics';
 import { wrapWithBrake } from './brake';
 import { getDeadlineInterceptor } from './interceptor';
@@ -93,7 +93,7 @@ export class HelperClientCreator {
   private getBrake(pkg, svc, host) {
     const name = `${pkg}.${svc}`;
 
-    const brakeOpts: any = {
+    const brakeOpts: BrakeOpts = {
       name: `${name}-${host}-brake`,
       healthCheck: null,
     };
@@ -114,10 +114,11 @@ export class HelperClientCreator {
 
     const { packageName: pkg, serviceName: svc } = this.opts;
 
-    this.grpcOpts.interceptors = [
+    this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
+    this.grpcOpts.interceptors = this.grpcOpts.interceptors.concat([
       getDeadlineInterceptor(this.opts.timeoutInMS),
       getMetricsInterceptor(host),
-    ];
+    ]);
 
     let grpcClient: grpc.Client = new this.Service(host, this.grpcCredentials, this.grpcOpts);
 
