@@ -28,7 +28,14 @@ export class HelperClientCreator {
     this.opts = opts;
     this.setupGRPCCredentials();
     this.setupGRPCOpts();
+    this.setupSvcDefs();
+  }
 
+  public getMethodNames(): string[] {
+    return this.methodNames;
+  }
+
+  private setupSvcDefs() {
     const { packageName: pkg, serviceName: svc } = this.opts;
     const packageDefinition = protoLoader.loadSync(
       this.opts.protoPath,
@@ -43,12 +50,7 @@ export class HelperClientCreator {
     this.Service = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
 
     this.serviceDefinition = packageDefinition[`${pkg}.${svc}`];
-  }
 
-  public getMethodNames(): string[] {
-    if (this.methodNames.length) {
-      return this.methodNames;
-    }
     _.each(this.serviceDefinition, (md, methodName) => {
       this.methodNames.push(methodName);
       if (md.originalName) {
