@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as debug from 'debug';
 
-import { GRPCHelperClient } from './common';
+import { GRPCHelperClient, GRPCHelperError } from './common';
 import { Resolver, Watcher, UpdateOp } from './naming';
 import { EventEmitter } from 'events';
 
@@ -63,6 +63,8 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
         this.isReady = true;
         this.emit('ready');
       }
+
+      this.emit('change', this.clients);
     }
   }
 
@@ -93,7 +95,7 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
 
   public get(): GRPCHelperClient {
     const availableClients = _.filter(this.clients, client => !client.brake.isOpen() && client.connected);
-    if (availableClients.length === 0) throw new Error('no client available');
+    if (availableClients.length === 0) throw new GRPCHelperError('no client available');
     return availableClients[this.next++ % availableClients.length];
   }
 
