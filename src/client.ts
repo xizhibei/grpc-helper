@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import * as _ from 'lodash';
 import * as Bluebird from 'bluebird';
 import * as Brakes from 'brakes';
@@ -8,7 +6,7 @@ import * as protoLoader from '@grpc/proto-loader';
 import * as debug from 'debug';
 
 
-import { GRPCHelperOpts, GRPCHelperError, GRPCHelperClient, GRPCOpts } from './common';
+import { GRPCHelperOpts, GRPCHelperClient, GRPCOpts } from './common';
 import { getMetricsInterceptor } from './metrics';
 import { wrapWithBrake } from './brake';
 import { getDeadlineInterceptor } from './interceptor';
@@ -129,9 +127,8 @@ export class HelperClientCreator {
 
     const { packageName: pkg, serviceName: svc } = this.opts;
 
-    const _this = this;
     this.grpcOpts.interceptors = [
-      getDeadlineInterceptor(_this.opts.timeoutInMS),
+      getDeadlineInterceptor(this.opts.timeoutInMS),
       getMetricsInterceptor(host),
     ];
 
