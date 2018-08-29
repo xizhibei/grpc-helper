@@ -70,20 +70,7 @@ export class HelperClientCreator {
     if (this.opts.sslOpts && this.opts.sslOpts.enable) {
       log('ssl enabled %s.%s', this.opts.packageName, this.opts.serviceName);
 
-      let cacert: Buffer;
-      if (this.opts.sslOpts.cacert) {
-        cacert = Buffer.from(this.opts.sslOpts.cacert);
-      }
-
-      let cert: Buffer;
-      if (this.opts.sslOpts.cert) {
-        cert = Buffer.from(this.opts.sslOpts.cert);
-      }
-
-      let key: Buffer;
-      if (this.opts.sslOpts.key) {
-        key = Buffer.from(this.opts.sslOpts.key);
-      }
+      const { cacert, cert, key } = this.opts.sslOpts;
 
       this.grpcCredentials = grpc.credentials.createSsl(cacert, cert, key);
     } else {

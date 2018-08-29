@@ -11,9 +11,9 @@ export class GRPCHelperError extends Error {
 
 export interface GRPCHelperSslOpts {
   enable: boolean;
-  cacert?: string | Buffer;
-  cert?: string | Buffer;
-  key?: string | Buffer;
+  cacert?: Buffer;
+  cert?: Buffer;
+  key?: Buffer;
 }
 
 export interface GRPCHelperClient {
