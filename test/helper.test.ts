@@ -18,6 +18,7 @@ mock('dns', {
 
 import { GRPCHelper } from '../src/helper';
 import { GRPCHelperSslOpts } from '../src';
+import { Writable, PassThrough } from 'stream';
 
 test('#dns service discovery && load balance', async t => {
   const { servers, stopServers } = startServers(3);
@@ -246,6 +247,50 @@ test('#helper full response', async t => {
   }, md);
 
   t.is(message.message, 'hello foo');
+  t.is(peer, list);
+  t.is(status.code, grpc.status.OK);
+  t.is(metadata.get('key')[0], 'value');
+
+  stopServers();
+});
+
+test('#helper client stream full response', async t => {
+  const { servers, stopServers } = startServers(1, false);
+  const list = _.map(servers, s => `localhost:${s.port}`).join(',');
+
+  const helper = new GRPCHelper({
+    packageName: 'helloworld',
+    serviceName: 'Greeter',
+    protoPath: path.resolve(__dirname, './hello.proto'),
+    sdUri: `static://${list}`,
+    resolveFullResponse: true,
+  });
+
+  await helper.waitForReady();
+
+  const md = new grpc.Metadata();
+  md.set('key', 'value');
+
+  const stream = new PassThrough({ objectMode: true });
+  const promise = helper.SayMultiHello(stream, md);
+
+  stream.write({
+    name: 'foo1',
+  });
+
+  stream.write({
+    name: 'foo2',
+  });
+
+  stream.write({
+    name: 'foo3',
+  });
+
+  stream.end();
+
+  const { message, peer, status, metadata } = await promise;
+
+  t.is(message.message, 'hello foo1,foo2,foo3');
   t.is(peer, list);
   t.is(status.code, grpc.status.OK);
   t.is(metadata.get('key')[0], 'value');

@@ -42,7 +42,7 @@ test.cb('#test service unary', t => {
 });
 
 test.cb('#test service clientStream', t => {
-  const call = t.context.helper.ClientStream(t.context.metadata, function (err, data) {
+  const call = t.context.helper.cbClientStream(t.context.metadata, function (err, data) {
     t.ifError(err);
   });
   call.on('metadata', function (metadata) {

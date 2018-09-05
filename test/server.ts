@@ -50,6 +50,19 @@ export function startServer(id, secure = false, healthCheck = null) {
         serverId: id,
       });
     },
+    SayMultiHello(call, callback) {
+      let names = [];
+      call.on('data', data => names.push(data.name));
+      call.on('end', () => {
+        // echo it back
+        call.sendMetadata(call.metadata);
+        callback(null, {
+          message: `hello ${names.join(',')}`,
+          count: names.length,
+          serverId: id,
+        });
+      });
+    },
   });
 
   const check = healthCheck || function Check(call, callback) {

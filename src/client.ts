@@ -57,7 +57,7 @@ export class HelperClientCreator {
         this.methodNames.push(md.originalName);
       }
 
-      if (md.requestStream || md.responseStream) {
+      if (md.responseStream) {
         return;
       }
 
@@ -137,7 +137,7 @@ export class HelperClientCreator {
       const methodCall = grpcClient[method].bind(grpcClient);
 
       // only deal with client unary call
-      if (md.requestStream || md.responseStream) {
+      if (md.responseStream) {
         client[method] = methodCall;
         if (md.originalName) {
           client[md.originalName] = methodCall;
@@ -150,10 +150,20 @@ export class HelperClientCreator {
       client[callbackMethod] = methodCall;
 
       // Start promisify and add brake for client unary call
-      function wrappedMethodCall(...args) {
+      function wrappedMethodCall(data: any, ...args) {
+        let isStream = _.isFunction(data.read) && _.isFunction(data.on);
+
         let call;
         const message = new Promise((resolve, reject) => {
-          call = methodCall(...args, (err, rst) => {
+          if (isStream) {
+            call = methodCall(...args, (err, rst) => {
+              if (err) return reject(err);
+              resolve(rst);
+            });
+            data.pipe(call);
+            return;
+          }
+          call = methodCall(data, ...args, (err, rst) => {
             if (err) return reject(err);
             resolve(rst);
           });
