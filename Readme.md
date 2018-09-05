@@ -24,7 +24,7 @@ yarn add grpc-helper
 ### Features
 
 - Promised unary & client stream call
-- Load balance
+- Client Load balance
 - Service health checking
 - Service discovery (static, dns srv)
 - Circuit breaker
@@ -69,7 +69,7 @@ const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
   protoPath: path.resolve(__dirname, './hello.proto'),
-  sdUri: `static://${list}`,
+  sdUri: 'static://localhost:50051',
   resolveFullResponse: true,
 });
 
