@@ -163,6 +163,13 @@ export interface GRPCHelperOpts {
   serviceName: string;
 
   /**
+   * Should grpc promised call return full response,
+   * if true, it will resolve with status, metadata, peer and message
+   * default is false, only message will be resolved
+   */
+  resolveFullResponse?: boolean;
+
+  /**
    * grpc options, used in create new instance of grpc client
    */
   grpcOpts?: GRPCOpts;

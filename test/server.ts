@@ -43,6 +43,8 @@ export function startServer(id, secure = false, healthCheck = null) {
   server.addService(hello.Greeter.service, {
     SayHello(call, callback) {
       const name = call.request.name;
+      // echo it back
+      call.sendMetadata(call.metadata);
       callback(null, {
         message: `hello ${name}`,
         serverId: id,

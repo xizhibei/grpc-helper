@@ -54,7 +54,7 @@ export class HelperClientCreator {
     _.each(this.serviceDefinition, (md, methodName) => {
       this.methodNames.push(methodName);
       if (md.originalName) {
-        this.methodNames.push(methodName);
+        this.methodNames.push(md.originalName);
       }
 
       if (md.requestStream || md.responseStream) {
@@ -114,7 +114,7 @@ export class HelperClientCreator {
   public createClientFromAddress(host: string): GRPCHelperClient {
     log('Setup client for %s', host);
 
-    const { packageName: pkg, serviceName: svc } = this.opts;
+    const { packageName: pkg, serviceName: svc, resolveFullResponse } = this.opts;
 
     this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
     this.grpcOpts.interceptors = this.grpcOpts.interceptors.concat([
@@ -134,23 +134,45 @@ export class HelperClientCreator {
 
 
     _.each(this.serviceDefinition, (md, method) => {
-      client[method] = grpcClient[method].bind(grpcClient);
+      const methodCall = grpcClient[method].bind(grpcClient);
 
       // only deal with client unary call
       if (md.requestStream || md.responseStream) {
+        client[method] = methodCall;
         if (md.originalName) {
-          client[md.originalName] = client[method];
+          client[md.originalName] = methodCall;
         }
         return;
       }
 
       // keep callback style call
       const callbackMethod = `cb${method}`;
-      client[callbackMethod] = client[method];
+      client[callbackMethod] = methodCall;
 
       // Start promisify and add brake for client unary call
-      client[method] = Promise.promisify(client[method]);
-      client[method] = wrapWithBrake(client[method], brake);
+      function wrappedMethodCall(...args) {
+        let call;
+        const message = new Promise((resolve, reject) => {
+          call = methodCall(...args, (err, rst) => {
+            if (err) return reject(err);
+            resolve(rst);
+          });
+        });
+
+        if (!resolveFullResponse) {
+          return message;
+        }
+
+        // Resolve with full response
+        return Promise.props({
+          metadata: new Promise(resolve => call.on('metadata', resolve)),
+          status: new Promise(resolve => call.on('status', resolve)),
+          message,
+          peer: call.getPeer(),
+        });
+      }
+
+      client[method] = wrapWithBrake(wrappedMethodCall, brake);
 
       if (md.originalName) {
         client[md.originalName] = client[method];

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import test from 'ava';
+import * as grpc from 'grpc';
 import * as _ from 'lodash';
 import * as mock from 'mock-require';
 import { SrvRecord } from 'dns';
@@ -222,4 +223,32 @@ test('#helper throws error when resolver not supported', async t => {
     t.is(e.name, 'GRPCHelperError');
     t.is(e.message, 'resolver not implemented: unknown');
   }
+});
+
+test('#helper full response', async t => {
+  const { servers, stopServers } = startServers(1, false);
+  const list = _.map(servers, s => `localhost:${s.port}`).join(',');
+
+  const helper = new GRPCHelper({
+    packageName: 'helloworld',
+    serviceName: 'Greeter',
+    protoPath: path.resolve(__dirname, './hello.proto'),
+    sdUri: `static://${list}`,
+    resolveFullResponse: true,
+  });
+
+  await helper.waitForReady();
+
+  const md = new grpc.Metadata();
+  md.set('key', 'value');
+  const { message, peer, status, metadata } = await helper.SayHello({
+    name: 'foo',
+  }, md);
+
+  t.is(message.message, 'hello foo');
+  t.is(peer, list);
+  t.is(status.code, grpc.status.OK);
+  t.is(metadata.get('key')[0], 'value');
+
+  stopServers();
 });
