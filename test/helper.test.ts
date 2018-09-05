@@ -226,6 +226,46 @@ test('#helper throws error when resolver not supported', async t => {
   }
 });
 
+test('#helper server error', async t => {
+  const { servers, stopServers } = startServers(1, false);
+  const list = _.map(servers, s => `localhost:${s.port}`).join(',');
+
+  const helper = new GRPCHelper({
+    packageName: 'helloworld',
+    serviceName: 'Greeter',
+    protoPath: path.resolve(__dirname, './hello.proto'),
+    sdUri: `static://${list}`,
+  });
+
+  await helper.waitForReady();
+
+  try {
+    await helper.SayHello({
+      error: true,
+    });
+  } catch (e) {
+    t.regex(e.message, /2 UNKNOWN: server_error$/);
+  }
+
+  const stream = new PassThrough({ objectMode: true });
+  const promise = helper.SayMultiHello(stream);
+
+  stream.write({
+    name: 'foo',
+    error: true,
+  });
+
+  stream.end();
+
+  try {
+    await promise;
+  } catch (e) {
+    t.regex(e.message, /2 UNKNOWN: server_error$/);
+  }
+
+  stopServers();
+});
+
 test('#helper full response', async t => {
   const { servers, stopServers } = startServers(1, false);
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');

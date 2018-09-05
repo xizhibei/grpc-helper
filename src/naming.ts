@@ -113,14 +113,14 @@ export class DNSWatcher extends EventEmitter implements Watcher {
   }
 
   public async next(): Promise<Update[]> {
+    if (this.updates.length) {
+      const copy = this.updates.slice();
+      this.updates = [];
+      return copy;
+    }
+
     log('wait for updates');
     return new Promise<Update[]>(resolve => {
-      if (this.updates.length) {
-        resolve(this.updates);
-        this.updates = [];
-        return;
-      }
-
       this.once('updates', () => {
         if (this.updates.length) {
           resolve(this.updates);
@@ -158,13 +158,13 @@ export class StaticWatcher extends EventEmitter implements Watcher {
   }
 
   public async next(): Promise<Update[]> {
-    return new Promise<Update[]>(resolve => {
-      if (this.updates.length) {
-        resolve(this.updates);
-        this.updates = [];
-        return;
-      }
+    if (this.updates.length) {
+      const copy = this.updates.slice();
+      this.updates = [];
+      return copy;
+    }
 
+    return new Promise<Update[]>(resolve => {
       this.once('updates', () => {
         if (this.updates.length) {
           resolve(this.updates);

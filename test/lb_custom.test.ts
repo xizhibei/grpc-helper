@@ -36,6 +36,9 @@ class CustomWatcher extends EventEmitter implements Watcher {
   }, {
     addr: 'localhost:4444',
     op: UpdateOp.ADD,
+  }, {
+    addr: 'localhost:0',
+    op: 3,
   }];
 
   constructor(resolveAddrs: () => Promise<Address[]>) {
@@ -87,6 +90,12 @@ test('#lb with custom resolver', async t => {
   await testlb(t, resolver, lb, ['localhost:1111', 'localhost:2222', 'localhost:3333']);
   await testlb(t, resolver, lb, ['localhost:2222', 'localhost:3333']);
   await testlb(t, resolver, lb, ['localhost:2222', 'localhost:3333', 'localhost:4444']);
+
+  await lb.waitForReady();
+  lb.on('error', (e) => {
+    t.is(e.message, 'unknwon update op, 3');
+  });
+  resolver.emit('next');
 
   lb.close();
 });

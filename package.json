@@ -4,7 +4,7 @@
   "description": "grpc helper",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "npm run build && ava",
+    "test": "ava",
     "coverage": "nyc npm test",
     "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
     "coverage-ci": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
@@ -35,9 +35,13 @@
     "typescript"
   ],
   "ava": {
-    "files": [
-      "dist/test/**/*.test.js"
-    ]
+    "compileEnhancements": false,
+		"extensions": [
+			"ts"
+		],
+		"require": [
+			"ts-node/register"
+		]
   },
   "nyc": {
     "extension": [
@@ -70,6 +74,7 @@
     "coveralls": "^3.0.2",
     "mock-require": "^3.0.2",
     "nyc": "^11.9.0",
+    "ts-node": "^7.0.1",
     "tslint": "^5.8.0",
     "typescript": "^3.0.1"
   }

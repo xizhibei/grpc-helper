@@ -40,22 +40,23 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
 
   private async watchUpdates() {
     log('start watch updates');
+    /* istanbul ignore next */
     while(true) {
       const updates = await this.watcher.next();
       log('got addrs %j', updates);
 
       _.each(updates, update => {
-        switch(update.op) {
+        switch (update.op) {
           case UpdateOp.ADD:
-          log('add address %s', update.addr);
-          this.clients.push(this.createClient(update.addr));
-          break;
+            log('add address %s', update.addr);
+            this.clients.push(this.createClient(update.addr));
+            break;
           case UpdateOp.DEL:
-          log('remove address %s', update.addr);
-          this.clients = _.reject(this.clients, (client) => client.address === update.addr);
-          break;
+            log('remove address %s', update.addr);
+            this.clients = _.reject(this.clients, (client) => client.address === update.addr);
+            break;
           default:
-            console.error('Error update op', update.op);
+            this.emit('error', new GRPCHelperError(`unknwon update op, ${update.op}`));
         }
       });
 

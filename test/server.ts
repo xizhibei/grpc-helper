@@ -42,7 +42,12 @@ export function startServer(id, secure = false, healthCheck = null) {
   const server = new grpc.Server();
   server.addService(hello.Greeter.service, {
     SayHello(call, callback) {
-      const name = call.request.name;
+      const { name, error } = call.request;
+
+      if (error) {
+        return callback(new Error('server_error'));
+      }
+
       // echo it back
       call.sendMetadata(call.metadata);
       callback(null, {
@@ -52,8 +57,18 @@ export function startServer(id, secure = false, healthCheck = null) {
     },
     SayMultiHello(call, callback) {
       let names = [];
-      call.on('data', data => names.push(data.name));
+      let error = false;
+      call.on('data', data => {
+        names.push(data.name);
+        if (data.error) {
+          error = true;
+        }
+      });
       call.on('end', () => {
+        if (error) {
+          return callback(new Error('server_error'));
+        }
+
         // echo it back
         call.sendMetadata(call.metadata);
         callback(null, {
