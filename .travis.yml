@@ -12,7 +12,7 @@ cache:
   - $HOME/.yarn-cache
 
 install:
-  - yarn install --ignore-engines
+  - yarn install --registry https://registry.npmjs.com --ignore-engines
 
 script:
   - npm run lint
