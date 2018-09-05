@@ -136,7 +136,7 @@ export class HelperClientCreator {
     _.each(this.serviceDefinition, (md, method) => {
       const methodCall = grpcClient[method].bind(grpcClient);
 
-      // only deal with client unary call
+      // only deal with call with callback
       if (md.responseStream) {
         client[method] = methodCall;
         if (md.originalName) {
@@ -149,7 +149,7 @@ export class HelperClientCreator {
       const callbackMethod = `cb${method}`;
       client[callbackMethod] = methodCall;
 
-      // Start promisify and add brake for client unary call
+      // Start promisify and add brake for call with callback
       function wrappedMethodCall(data: any, ...args) {
         let isStream = _.isFunction(data.read) && _.isFunction(data.on);
 

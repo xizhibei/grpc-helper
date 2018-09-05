@@ -23,8 +23,8 @@ yarn add grpc-helper
 
 ### Features
 
-- Promised unary call
-- Load balancer
+- Promised unary & client stream call
+- Load balance
 - Service health checking
 - Service discovery (static, dns srv)
 - Circuit breaker
@@ -63,11 +63,53 @@ const res = await helper.SayHello({
 });
 ```
 
+#### Resolve with full response
+```ts
+const helper = new GRPCHelper({
+  packageName: 'helloworld',
+  serviceName: 'Greeter',
+  protoPath: path.resolve(__dirname, './hello.proto'),
+  sdUri: `static://${list}`,
+  resolveFullResponse: true,
+});
+
+await helper.waitForReady();
+
+const { message, peer, status, metadata } = await helper.SayHello({
+  name: 'foo',
+});
+```
+
+
+#### Client stream call
+```ts
+const stream = new stream.PassThrough({ objectMode: true });
+
+const promise = helper.SayMultiHello(stream);
+
+stream.write({
+  name: 'foo1',
+});
+
+stream.write({
+  name: 'foo2',
+});
+
+stream.write({
+  name: 'foo3',
+});
+
+stream.end();
+
+const result = await promise;
+```
+
 ### TODO
-- Better api
-- Doc
-- Test code
-- Consul/etcd/zk service discovery
+
+- [x] Better api
+- [x] Doc
+- [x] Test code
+- [ ] Consul/etcd/zk service discovery
 
 
 ### License
