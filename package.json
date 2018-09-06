@@ -4,7 +4,7 @@
   "description": "grpc helper",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "ava",
+    "test": "tsc && ava",
     "coverage": "nyc npm test",
     "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
     "coverage-ci": "nyc npm test && nyc report --reporter=text-lcov | coveralls",

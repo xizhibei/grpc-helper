@@ -1,4 +1,4 @@
-import * as grpc from 'grpc';
+import { Client } from 'grpc';
 
 export class GRPCHelperError extends Error {
   name: string = 'GRPCHelperError';
@@ -20,7 +20,7 @@ export interface GRPCHelperClient {
   address: string;
   weight: number;
   connected: boolean;
-  grpcClient: grpc.Client;
+  grpcClient: Client;
   brake: any;
   [method: string]: any;
 }
@@ -189,6 +189,7 @@ export interface GRPCHelperOpts {
 
   /**
    * Global timeout is million seconds
+   * If set to 0, timeout is disabled
    */
   timeoutInMS?: number;
 
@@ -201,5 +202,15 @@ export interface GRPCHelperOpts {
    * Grpc health check func, used in Brakes
    */
   healthCheck?: GRPCHelperCheck;
+
+  /**
+   * Whether enable prometheus metrics
+   *   name: grpc_response_duration_seconds
+   *   type: histogram
+   *   labels: peer,method,code
+   *
+   * Default: true
+   */
+  metrics?: boolean;
 }
 

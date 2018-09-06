@@ -28,6 +28,7 @@ export class GRPCHelper {
 
     this.opts = Object.assign({
       timeoutInMS: 5000,
+      metrics: true,
     }, opts);
 
     this.opts.healthCheck = Object.assign({

@@ -114,13 +114,23 @@ export class HelperClientCreator {
   public createClientFromAddress(host: string): GRPCHelperClient {
     log('Setup client for %s', host);
 
-    const { packageName: pkg, serviceName: svc, resolveFullResponse } = this.opts;
+    const {
+      packageName: pkg,
+      serviceName: svc,
+      timeoutInMS,
+      metrics,
+      resolveFullResponse,
+    } = this.opts;
 
     this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
-    this.grpcOpts.interceptors = this.grpcOpts.interceptors.concat([
-      getDeadlineInterceptor(this.opts.timeoutInMS),
-      getMetricsInterceptor(host),
-    ]);
+
+    if (!metrics) {
+      this.grpcOpts.interceptors.push(getMetricsInterceptor(host));
+    }
+
+    if (timeoutInMS) {
+      this.grpcOpts.interceptors.push(getDeadlineInterceptor(timeoutInMS));
+    }
 
     let grpcClient: grpc.Client = new this.Service(host, this.grpcCredentials, this.grpcOpts);
 

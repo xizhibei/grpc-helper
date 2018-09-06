@@ -15,7 +15,7 @@ export function getMetricsInterceptor(peer: string) {
     });
 
     const requester = (new grpc.RequesterBuilder())
-        .withStart(function(metadata: grpc.Metadata, listener: grpc.Listener, next: Function) {
+        .withStart(function(metadata: grpc.Metadata, _listener: grpc.Listener, next: Function) {
           const newListener = (new grpc.ListenerBuilder())
             .withOnReceiveStatus(function(status: grpc.StatusObject, next: Function) {
               endTimer({
