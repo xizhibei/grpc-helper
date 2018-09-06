@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { SrvRecord } from 'dns';
+import { PassThrough } from 'stream';
 
 import test from 'ava';
 import * as grpc from 'grpc';
 import * as _ from 'lodash';
 import * as mock from 'mock-require';
-import { SrvRecord } from 'dns';
 
 import { startServers } from './server';
 
@@ -16,9 +17,7 @@ mock('dns', {
   },
 });
 
-import { GRPCHelper } from '../src/helper';
-import { GRPCHelperSslOpts } from '../src';
-import { Writable, PassThrough } from 'stream';
+import { GRPCHelper, GRPCHelperSslOpts, promRegister } from '../src';
 
 test('#dns service discovery && load balance', async t => {
   const { servers, stopServers } = startServers(3);
@@ -264,6 +263,9 @@ test('#helper server error', async t => {
   }
 
   stopServers();
+
+  const metrics = promRegister.getMetricsAsJSON();
+  t.is(metrics[0].name, 'grpc_response_duration_seconds');
 });
 
 test('#helper full response', async t => {
