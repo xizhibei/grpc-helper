@@ -11,8 +11,7 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
-    "postbuild": "cp src/*.proto dist/src && cp test/*.proto dist/test && cp -r test/fixtures dist/test",
-    "prepublish": "npm run build"
+    "postbuild": "cp src/*.proto dist/src && cp test/*.proto dist/test && cp -r test/fixtures dist/test"
   },
   "repository": {
     "type": "git",
