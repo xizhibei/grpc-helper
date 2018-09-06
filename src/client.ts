@@ -124,11 +124,13 @@ export class HelperClientCreator {
 
     this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
 
-    if (!metrics) {
+    if (metrics) {
+      log('enable metrics for %s', host);
       this.grpcOpts.interceptors.push(getMetricsInterceptor(host));
     }
 
     if (timeoutInMS) {
+      log('enable global timeout: %d ms', timeoutInMS);
       this.grpcOpts.interceptors.push(getDeadlineInterceptor(timeoutInMS));
     }
 

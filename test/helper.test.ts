@@ -17,7 +17,7 @@ mock('dns', {
   },
 });
 
-import { GRPCHelper, GRPCHelperSslOpts, promRegister } from '../src';
+import { GRPCHelper, GRPCHelperSslOpts } from '../src';
 
 test('#dns service discovery && load balance', async t => {
   const { servers, stopServers } = startServers(3);
@@ -263,9 +263,6 @@ test('#helper server error', async t => {
   }
 
   stopServers();
-
-  const metrics = promRegister.getMetricsAsJSON();
-  t.is(metrics[0].name, 'grpc_response_duration_seconds');
 });
 
 test('#helper full response', async t => {
