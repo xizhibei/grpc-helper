@@ -27,3 +27,4 @@ deploy:
   on:
     tags: true
     repo: xizhibei/grpc-helper
+  skip_cleanup: true
