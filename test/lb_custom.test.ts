@@ -1,11 +1,13 @@
 import test from 'ava';
 import * as Brakes from 'brakes';
 import * as _ from 'lodash';
+import * as grpc from 'grpc';
 
 import { Resolver, Address, Watcher, Update, UpdateOp } from '../src/naming';
 import { RoundRobinBalancer } from '../src/lb';
 import { GRPCHelperClient } from '../src/common';
 import { EventEmitter } from 'events';
+import { ClientFactory } from '../src';
 
 class CustomResoler extends EventEmitter implements Resolver {
   resolve(target: string): Watcher {
@@ -61,6 +63,18 @@ class CustomWatcher extends EventEmitter implements Watcher {
   }
 }
 
+class ClientCreator implements ClientFactory {
+  createClient(addr: string) {
+    return <GRPCHelperClient>{
+      address: addr,
+      connected: true,
+      brake: new Brakes(),
+    };
+  }
+  closeClient() {
+  }
+}
+
 async function testlb(t, resolver, lb, addrs) {
   return new Promise(resolve => {
     lb.once('change', clients => {
@@ -76,13 +90,7 @@ async function testlb(t, resolver, lb, addrs) {
 
 test('#lb with custom resolver', async t => {
   const resolver = new CustomResoler();
-  const lb = new RoundRobinBalancer(resolver, (addr: string) => {
-    return <GRPCHelperClient>{
-      address: addr,
-      connected: true,
-      brake: new Brakes(),
-    };
-  });
+  const lb = new RoundRobinBalancer(resolver, new ClientCreator());
 
   lb.start('test');
   await testlb(t, resolver, lb, ['localhost:1111']);

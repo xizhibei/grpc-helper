@@ -4,6 +4,7 @@ import * as debug from 'debug';
 import { GRPCHelperClient, GRPCHelperError } from './common';
 import { Resolver, Watcher, UpdateOp } from './naming';
 import { EventEmitter } from 'events';
+import { ClientFactory } from './client';
 
 const log = debug('grpcHelper:lb');
 
@@ -22,13 +23,13 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
   private resolver: Resolver;
   private watcher: Watcher;
   private isReady: boolean = false;
-  private createClient: (addr: string) => GRPCHelperClient;
+  private clientFactory: ClientFactory;
 
-  constructor(resolver: Resolver, createClient: (addr: string) => GRPCHelperClient) {
+  constructor(resolver: Resolver, clientFactory: ClientFactory) {
     super();
 
     this.resolver = resolver;
-    this.createClient = createClient;
+    this.clientFactory = clientFactory;
   }
 
   public waitForReady(): Promise<void> {
@@ -49,10 +50,14 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
         switch (update.op) {
           case UpdateOp.ADD:
             log('add address %s', update.addr);
-            this.clients.push(this.createClient(update.addr));
+            this.clients.push(this.clientFactory.createClient(update.addr));
             break;
           case UpdateOp.DEL:
             log('remove address %s', update.addr);
+            const rmClient = _.find(this.clients, (client) => client.address === update.addr);
+            if (rmClient) {
+              this.clientFactory.closeClient(rmClient);
+            }
             this.clients = _.reject(this.clients, (client) => client.address === update.addr);
             break;
           default:
@@ -102,5 +107,6 @@ export class RoundRobinBalancer extends EventEmitter implements Balancer {
 
   public async close(): Promise<void> {
     await this.watcher.close();
+    _.each(this.clients, client => this.clientFactory.closeClient(client));
   }
 }

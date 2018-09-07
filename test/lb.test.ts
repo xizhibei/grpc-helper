@@ -5,6 +5,20 @@ import * as _ from 'lodash';
 import { StaticResolver } from '../src/naming';
 import { RoundRobinBalancer } from '../src/lb';
 import { GRPCHelperClient } from '../src/common';
+import { ClientFactory } from '../src';
+
+
+class ClientCreator implements ClientFactory {
+  createClient(addr: string) {
+    return <GRPCHelperClient>{
+      address: addr,
+      connected: true,
+      brake: new Brakes(),
+    };
+  }
+  closeClient() {
+  }
+}
 
 async function testlb(t, lb, addrs) {
   const resAddrs = _.uniq(_.map(_.times(6, () => lb.get()), 'address'));
@@ -14,13 +28,7 @@ async function testlb(t, lb, addrs) {
 
 test('#lb with static resolver', async t => {
   const resolver = new StaticResolver();
-  const lb = new RoundRobinBalancer(resolver, (addr: string) => {
-    return <GRPCHelperClient>{
-      address: addr,
-      connected: true,
-      brake: new Brakes(),
-    };
-  });
+  const lb = new RoundRobinBalancer(resolver, new ClientCreator());
 
   lb.start(['localhost:1111', 'localhost:2222', 'localhost:3333'].join(','));
 
@@ -42,13 +50,7 @@ test('#lb with static resolver', async t => {
 
 test('#lb no client available', async t => {
   const resolver = new StaticResolver();
-  const lb = new RoundRobinBalancer(resolver, (addr: string) => {
-    return <GRPCHelperClient>{
-      address: addr,
-      connected: true,
-      brake: new Brakes(),
-    };
-  });
+  const lb = new RoundRobinBalancer(resolver, new ClientCreator());
 
   lb.start('');
 

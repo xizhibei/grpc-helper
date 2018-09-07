@@ -6,7 +6,7 @@ import { each } from 'lodash';
 
 import { GRPCHelperOpts, GRPCHelperError } from './common';
 import { RoundRobinBalancer, Balancer } from './lb';
-import { HelperClientCreator } from './client';
+import { HelperClientCreator, ClientFactory } from './client';
 import { Resolver, DNSResolver, StaticResolver } from './naming';
 
 const log = debug('grpcHelper:helper');
@@ -37,7 +37,7 @@ export class GRPCHelper {
       protoPath: path.resolve(__dirname, 'health.proto'),
     }, opts.healthCheck);
 
-    const clientCreator = new HelperClientCreator(this.opts);
+    const clientCreator: HelperClientCreator = new HelperClientCreator(this.opts);
 
     const { type, addr } = this.parseSDUri(this.opts.sdUri);
     log('service discovery use %s', type);
@@ -51,8 +51,7 @@ export class GRPCHelper {
       throw new GRPCHelperError(`resolver not implemented: ${type}`);
     }
 
-    const createClient = clientCreator.createClientFromAddress.bind(clientCreator);
-    this.lb = new RoundRobinBalancer(resolver, createClient);
+    this.lb = new RoundRobinBalancer(resolver, clientCreator);
 
     this.lb.start(addr);
 

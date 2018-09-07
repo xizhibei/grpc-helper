@@ -16,7 +16,12 @@ const log = debug('grpcHelper:client');
 
 Promise = Bluebird as any;
 
-export class HelperClientCreator {
+export interface ClientFactory {
+  createClient: (address: string) => GRPCHelperClient;
+  closeClient: (client: GRPCHelperClient) => void;
+}
+
+export class HelperClientCreator implements ClientFactory {
   private opts: GRPCHelperOpts;
   private grpcCredentials: grpc.ChannelCredentials;
   private grpcOpts: GRPCOpts;
@@ -111,7 +116,13 @@ export class HelperClientCreator {
     return new Brakes(Object.assign(brakeOpts, this.opts.brakeOpts));
   }
 
-  public createClientFromAddress(host: string): GRPCHelperClient {
+  public closeClient(client: GRPCHelperClient) {
+    client.connected = false;
+    client.grpcClient.close();
+    client.grpcClient = null;
+  }
+
+  public createClient(host: string): GRPCHelperClient {
     log('Setup client for %s', host);
 
     const {
@@ -139,6 +150,7 @@ export class HelperClientCreator {
     const brake = this.getBrake(pkg, svc, host);
 
     const client = <GRPCHelperClient>{
+      address: host,
       grpcClient,
       brake,
       connected: true,
