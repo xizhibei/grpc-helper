@@ -12,7 +12,8 @@ cache:
   - $HOME/.yarn-cache
 
 install:
-  - yarn install --registry https://registry.npmjs.com --ignore-engines
+  - sed -i 's/http:\/\/registry.npm.taobao.org/https:\/\/registry.yarnpkg.com/g' yarn.lock
+  - yarn install --ignore-engines
 
 script:
   - npm run lint
