@@ -1,4 +1,6 @@
-# GRPC helper
+# gRPC helper
+
+gRPC helper is an improved gRPC client with lots of helpful features.
 
 **WARNING: in beta !!!**
 
@@ -15,6 +17,7 @@
 ```bash
 npm i grpc-helper --save
 ```
+
 or
 
 ```bash
@@ -37,7 +40,7 @@ const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
   protoPath: path.resolve(__dirname, './hello.proto'),
-  sdUri: 'dns://_http._tcp.greeter',
+  sdUri: 'dns://_grpc._tcp.greeter',
 });
 
 await helper.waitForReady();
@@ -101,7 +104,7 @@ stream.write({
 
 stream.end();
 
-const result = await promise;
+const result = await promise; // { message: 'hello foo1,foo2,foo3' }
 ```
 
 ### TODO
@@ -109,6 +112,8 @@ const result = await promise;
 - [x] Better api
 - [x] Doc
 - [x] Test code
+- [ ] Retry on lb level when error
+- [ ] Auto load proto when only one service available
 - [ ] Consul/etcd/zk service discovery
 
 
