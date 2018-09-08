@@ -1,6 +1,6 @@
 {
   "name": "grpc-helper",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "grpc helper",
   "main": "dist/src/index.js",
   "scripts": {
