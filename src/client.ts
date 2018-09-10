@@ -95,6 +95,23 @@ export class HelperClientCreator implements ClientFactory {
         'grpc.default_authority': this.opts.hostNameOverride,
       });
     }
+
+    const {
+      timeoutInMS,
+      metrics,
+    } = this.opts;
+
+    this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
+
+    if (metrics) {
+      log('enable metrics');
+      this.grpcOpts.interceptors.push(getMetricsInterceptor());
+    }
+
+    if (timeoutInMS) {
+      log('enable global timeout: %d ms', timeoutInMS);
+      this.grpcOpts.interceptors.push(getDeadlineInterceptor(timeoutInMS));
+    }
   }
 
   private getBrake(pkg, svc, host) {
@@ -128,22 +145,8 @@ export class HelperClientCreator implements ClientFactory {
     const {
       packageName: pkg,
       serviceName: svc,
-      timeoutInMS,
-      metrics,
       resolveFullResponse,
     } = this.opts;
-
-    this.grpcOpts.interceptors = this.grpcOpts.interceptors || [];
-
-    if (metrics) {
-      log('enable metrics for %s', host);
-      this.grpcOpts.interceptors.push(getMetricsInterceptor(host));
-    }
-
-    if (timeoutInMS) {
-      log('enable global timeout: %d ms', timeoutInMS);
-      this.grpcOpts.interceptors.push(getDeadlineInterceptor(timeoutInMS));
-    }
 
     let grpcClient: grpc.Client = new this.Service(host, this.grpcCredentials, this.grpcOpts);
 

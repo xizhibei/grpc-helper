@@ -7,10 +7,12 @@ const histogram = new promClient.Histogram({
   labelNames: ['peer', 'method', 'code'],
 });
 
-export function getMetricsInterceptor(peer: string) {
+export function getMetricsInterceptor() {
   return function metricsInterceptor(options, nextCall) {
+    const call = nextCall(options);
+
     const endTimer = histogram.startTimer({
-      peer,
+      peer: call.getPeer(),
       method: options.method_definition.path,
     });
 
@@ -26,6 +28,6 @@ export function getMetricsInterceptor(peer: string) {
           next(metadata, newListener);
         }).build();
 
-    return new grpc.InterceptingCall(nextCall(options), requester);
+    return new grpc.InterceptingCall(call, requester);
   };
 }
