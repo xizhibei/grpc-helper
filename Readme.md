@@ -107,12 +107,41 @@ stream.end();
 const result = await promise; // { message: 'hello foo1,foo2,foo3' }
 ```
 
+#### Retry
+```ts
+const helper = new GRPCHelper({
+  packageName: 'helloworld',
+  serviceName: 'Greeter',
+  protoPath: path.resolve(__dirname, './hello.proto'),
+  sdUri: 'static://localhost:50051',
+  retryOpts: {
+    enable: true,
+    retries: 5,
+    bailError(err, attempt) {
+      // Just for example !!! It will not retry when code is 2
+      return err.code === 2;
+    },
+  },
+});
+
+await helper.waitForReady();
+
+await helper.SayHello({
+  name: 'foo',
+});
+```
+
+
+#### More
+
+Please take a look at the [test](test/) folder for more examples.
+
 ### TODO
 
 - [x] Better api
 - [x] Doc
 - [x] Test code
-- [ ] Retry on lb level when error
+- [x] Retry on lb level when error
 - [ ] Auto load proto when only one service available
 - [ ] Consul/etcd/zk service discovery
 

@@ -177,7 +177,7 @@ export class HelperClientCreator implements ClientFactory {
       client[callbackMethod] = methodCall;
 
       // Start promisify and add brake for call with callback
-      function wrappedMethodCall(data: any, ...args) {
+      function wrappedMethodCall(data: any = {}, ...args) {
         let isStream = _.isFunction(data.read) && _.isFunction(data.on);
 
         let call;

@@ -21,12 +21,13 @@ test('#health check', async t => {
 });
 
 test('#health check, unhealth', async t => {
-  const { port, stopServer } = startServer(0, false, function Check(call, callback) {
+  const check = function Check(call, callback) {
     const service = call.request.service;
     callback(null, {
       status: 'NOT_SERVING',
     });
-  });
+  };
+  const { port, stopServer } = startServer(0, { healthCheck: check });
   const healthCheck = getBrakeHealthCheckFunc('test', `localhost:${port}`, {
     timeoutInMS: 5000,
     grpcCredentials: grpc.credentials.createInsecure(),
@@ -43,9 +44,10 @@ test('#health check, unhealth', async t => {
 });
 
 test('#health check, error', async t => {
-  const { port, stopServer } = startServer(0, false, function Check(call, callback) {
+  const check = function Check(call, callback) {
     callback(new Error('test'));
-  });
+  };
+  const { port, stopServer } = startServer(0, { healthCheck: check });
   const healthCheck = getBrakeHealthCheckFunc('test', `localhost:${port}`, {
     timeoutInMS: 5000,
     grpcCredentials: grpc.credentials.createInsecure(),
@@ -62,13 +64,15 @@ test('#health check, error', async t => {
 });
 
 test('#health check, timeout', async t => {
-  const { port, stopServer } = startServer(0, false, function Check(call, callback) {
+  const check = function Check(call, callback) {
     setTimeout(() => {
       callback(null, {
         status: 'SERVING',
       });
     }, 1000);
-  });
+  };
+
+  const { port, stopServer } = startServer(0, { healthCheck: check });
   const healthCheck = getBrakeHealthCheckFunc('test', `localhost:${port}`, {
     timeoutInMS: 100,
     grpcCredentials: grpc.credentials.createInsecure(),

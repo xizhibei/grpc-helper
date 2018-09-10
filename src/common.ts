@@ -1,4 +1,5 @@
 import { Client } from 'grpc';
+import { Options as NodeRetryOpts } from 'async-retry';
 
 export class GRPCHelperError extends Error {
   name: string = 'GRPCHelperError';
@@ -139,6 +140,18 @@ export interface BrakeOpts {
 
 }
 
+interface RetryOpts extends NodeRetryOpts {
+  /**
+   * Disabled by default.
+   */
+  enable: boolean;
+
+  /**
+   * Whether ignore some specified errors
+   */
+  bailError?: (e: Error, attempt: number) => boolean;
+}
+
 export interface GRPCHelperOpts {
   /**
    * Service discovery uri
@@ -212,5 +225,11 @@ export interface GRPCHelperOpts {
    * Default: true
    */
   metrics?: boolean;
+
+  /**
+   * Retry options for [async-retry](https://github.com/zeit/async-retry) when error,
+   * options is actually based on [node-retry](https://github.com/tim-kos/node-retry)
+   */
+  retryOpts?: RetryOpts;
 }
 

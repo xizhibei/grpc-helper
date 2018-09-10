@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as Bluebird from 'bluebird';
 import * as debug from 'debug';
 import { each } from 'lodash';
+import * as retry from 'async-retry';
 
 import { GRPCHelperOpts, GRPCHelperError } from './common';
 import { RoundRobinBalancer, Balancer } from './lb';
@@ -37,6 +38,10 @@ export class GRPCHelper {
       protoPath: path.resolve(__dirname, 'health.proto'),
     }, opts.healthCheck);
 
+    this.opts.retryOpts = Object.assign({
+      enable: false,
+    }, opts.retryOpts);
+
     const clientCreator: HelperClientCreator = new HelperClientCreator(this.opts);
 
     const { type, addr } = this.parseSDUri(this.opts.sdUri);
@@ -56,10 +61,33 @@ export class GRPCHelper {
     this.lb.start(addr);
 
     const methodNames = clientCreator.getMethodNames();
+
+    const { retryOpts } = this.opts;
     each(methodNames, method => {
+      if (!retryOpts.enable) {
+        this[method] = (...args) => {
+          const client = this.lb.get();
+          return client[method](...args);
+        };
+        return;
+      }
+
+      // Implement retry logic by async-retry
       this[method] = (...args) => {
-        const client = this.lb.get();
-        return client[method](...args);
+        return retry(async (bail, attempt: number) => {
+          const client = this.lb.get();
+          let res;
+          try {
+            res = await client[method](...args);
+          } catch (e) {
+            if (retryOpts.bailError && retryOpts.bailError(e, attempt)) {
+              bail(e);
+              return;
+            }
+            throw e;
+          }
+          return res;
+        }, retryOpts);
       };
     });
   }

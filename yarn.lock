@@ -105,6 +105,10 @@
   version "1.1.0"
   resolved "http://registry.npm.taobao.org/@protobufjs/utf8/download/@protobufjs/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
 
+"@types/async-retry@^1.2.1":
+  version "1.2.1"
+  resolved "http://registry.npm.taobao.org/@types/async-retry/download/@types/async-retry-1.2.1.tgz#fa9ac165907a8ee78f4924f4e393b656c65b5bb4"
+
 "@types/bluebird-global@^3.5.3":
   version "3.5.6"
   resolved "http://registry.npm.taobao.org/@types/bluebird-global/download/@types/bluebird-global-3.5.6.tgz#a5a089f2110a0467658bb9f726442df0713ab281"
@@ -310,6 +314,12 @@ assign-symbols@^1.0.0:
 async-each@^1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/async-each/download/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
+
+async-retry@^1.2.3:
+  version "1.2.3"
+  resolved "http://registry.npm.taobao.org/async-retry/download/async-retry-1.2.3.tgz#a6521f338358d322b1a0012b79030c6f411d1ce0"
+  dependencies:
+    retry "0.12.0"
 
 async@^1.4.0:
   version "1.5.2"
@@ -3295,6 +3305,10 @@ restore-cursor@^2.0.0:
 ret@~0.1.10:
   version "0.1.15"
   resolved "http://registry.npm.taobao.org/ret/download/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
+
+retry@0.12.0:
+  version "0.12.0"
+  resolved "http://registry.npm.taobao.org/retry/download/retry-0.12.0.tgz#1b42a6266a21f07421d1b0b54b7dc167b01c013b"
 
 right-align@^0.1.1:
   version "0.1.3"

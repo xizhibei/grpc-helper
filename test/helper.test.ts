@@ -156,7 +156,7 @@ test('#helper health check', async t => {
 });
 
 test('#helper ssl', async t => {
-  const { servers, stopServers } = startServers(3, true);
+  const { servers, stopServers } = startServers(3, { secure: true });
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');
   t.log(list);
 
@@ -226,7 +226,7 @@ test('#helper throws error when resolver not supported', async t => {
 });
 
 test('#helper server error', async t => {
-  const { servers, stopServers } = startServers(1, false);
+  const { servers, stopServers } = startServers(1, { alwaysError: true });
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');
 
   const helper = new GRPCHelper({
@@ -239,9 +239,7 @@ test('#helper server error', async t => {
   await helper.waitForReady();
 
   try {
-    await helper.SayHello({
-      error: true,
-    });
+    await helper.SayHello();
   } catch (e) {
     t.regex(e.message, /2 UNKNOWN: server_error$/);
   }
@@ -251,7 +249,6 @@ test('#helper server error', async t => {
 
   stream.write({
     name: 'foo',
-    error: true,
   });
 
   stream.end();
@@ -266,7 +263,7 @@ test('#helper server error', async t => {
 });
 
 test('#helper full response', async t => {
-  const { servers, stopServers } = startServers(1, false);
+  const { servers, stopServers } = startServers(1);
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');
 
   const helper = new GRPCHelper({
@@ -294,7 +291,7 @@ test('#helper full response', async t => {
 });
 
 test('#helper client stream full response', async t => {
-  const { servers, stopServers } = startServers(1, false);
+  const { servers, stopServers } = startServers(1);
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');
 
   const helper = new GRPCHelper({

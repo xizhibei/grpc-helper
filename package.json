@@ -36,12 +36,12 @@
   ],
   "ava": {
     "compileEnhancements": false,
-		"extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register"
-		]
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   },
   "nyc": {
     "extension": [
@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.3.0",
+    "async-retry": "^1.2.3",
     "bluebird": "^3.5.0",
     "brakes": "^2.6.0",
     "debug": "^3.1.0",
@@ -66,6 +67,7 @@
     "prom-client": "^10.2.3"
   },
   "devDependencies": {
+    "@types/async-retry": "^1.2.1",
     "@types/bluebird-global": "^3.5.3",
     "@types/debug": "^0.0.30",
     "@types/lodash": "^4.14.91",

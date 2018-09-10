@@ -8,7 +8,7 @@ import { startServers } from './server';
 import { GRPCHelper, promRegister } from '../src';
 
 test('#metrics', async t => {
-  const { servers, stopServers } = startServers(1, false);
+  const { servers, stopServers } = startServers(1);
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');
 
   const helper = new GRPCHelper({

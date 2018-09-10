@@ -38,13 +38,19 @@ const health = grpc.loadPackageDefinition(protoLoader.loadSync(
   }
 )).grpc.health.v1;
 
-export function startServer(id, secure = false, healthCheck = null) {
+interface StartServerOpts {
+  secure?: boolean;
+  healthCheck?: (...args) => any;
+  alwaysError?: boolean;
+}
+
+export function startServer(id: number, opts: StartServerOpts = <StartServerOpts>{}) {
   const server = new grpc.Server();
   server.addService(hello.Greeter.service, {
     SayHello(call, callback) {
-      const { name, error } = call.request;
+      const { name } = call.request;
 
-      if (error) {
+      if (opts.alwaysError) {
         return callback(new Error('server_error'));
       }
 
@@ -60,12 +66,9 @@ export function startServer(id, secure = false, healthCheck = null) {
       let error = false;
       call.on('data', data => {
         names.push(data.name);
-        if (data.error) {
-          error = true;
-        }
       });
       call.on('end', () => {
-        if (error) {
+        if (opts.alwaysError) {
           return callback(new Error('server_error'));
         }
 
@@ -80,7 +83,7 @@ export function startServer(id, secure = false, healthCheck = null) {
     },
   });
 
-  const check = healthCheck || function Check(call, callback) {
+  const check = opts.healthCheck || function Check(call, callback) {
     const service = call.request.service;
     callback(null, {
       status: 'SERVING',
@@ -92,7 +95,7 @@ export function startServer(id, secure = false, healthCheck = null) {
   });
 
   let creds = grpc.ServerCredentials.createInsecure();
-  if (secure) {
+  if (opts.secure) {
     creds = grpc.ServerCredentials.createSsl(null, [<grpc.KeyCertPair>{
       private_key: fs.readFileSync(path.resolve(__dirname, './fixtures/server.key')),
       cert_chain: fs.readFileSync(path.resolve(__dirname, './fixtures/server.crt')),
@@ -146,10 +149,10 @@ export function startMethoodTestServer() {
   return { port, stopServer };
 }
 
-export function startServers(num: number, secure = false) {
+export function startServers(num: number, opts: StartServerOpts = <StartServerOpts>{}) {
   const servers = [];
   _.times(num, i => {
-    const { port, stopServer } = startServer(i, secure);
+    const { port, stopServer } = startServer(i, opts);
     servers.push({
       id: i,
       port,
