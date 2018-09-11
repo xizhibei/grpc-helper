@@ -11,9 +11,25 @@ export class GRPCHelperError extends Error {
 }
 
 export interface GRPCHelperSslOpts {
+  /**
+   * Whether enable ssl
+   * Default: false
+   */
   enable: boolean;
+
+  /**
+   * CA cert in buffer
+   */
   cacert?: Buffer;
+
+  /**
+   * cert in buffer
+   */
   cert?: Buffer;
+
+  /**
+   * key in buffer
+   */
   key?: Buffer;
 }
 
@@ -27,7 +43,16 @@ export interface GRPCHelperClient {
 }
 
 export interface GRPCHelperCheck {
+  /**
+   * Whether enable health check
+   * Default: true
+   */
   enable: boolean;
+
+  /**
+   * Timeout for health check call
+   * Default: 5000
+   */
   timeoutInMS?: number;
 }
 
@@ -203,6 +228,7 @@ export interface GRPCHelperOpts {
   /**
    * Global timeout is million seconds
    * If set to 0, timeout is disabled
+   * Default: 5000
    */
   timeoutInMS?: number;
 
