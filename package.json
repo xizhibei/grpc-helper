@@ -1,7 +1,7 @@
 {
   "name": "grpc-helper",
-  "version": "0.2.3",
-  "description": "grpc helper",
+  "version": "0.3.0",
+  "description": "gRPC helper, an improved gRPC client for grpc-node",
   "main": "dist/src/index.js",
   "scripts": {
     "test": "tsc && ava",
