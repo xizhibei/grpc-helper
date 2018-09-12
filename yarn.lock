@@ -1686,9 +1686,9 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2:
   version "1.10.5"
   resolved "http://registry.npm.taobao.org/growl/download/growl-1.10.5.tgz#f2735dc2283674fa67478b10181059355c369e5e"
 
-grpc@^1.14.1:
-  version "1.14.1"
-  resolved "http://registry.npm.taobao.org/grpc/download/grpc-1.14.1.tgz#42d5900fd13a0daca1a58155cd4ab4d0c2f9c716"
+grpc@^1.14.2:
+  version "1.14.2"
+  resolved "http://registry.npm.taobao.org/grpc/download/grpc-1.14.2.tgz#046f88cccc5a23470f67d480e320ec28a2dc3893"
   dependencies:
     lodash "^4.17.5"
     nan "^2.0.0"
