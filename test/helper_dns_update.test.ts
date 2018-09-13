@@ -62,7 +62,7 @@ test('#dns service discovery with rolling update server', async t => {
     packageName: 'helloworld',
     serviceName: 'Greeter',
     protoPath: path.resolve(__dirname, './hello.proto'),
-    sdUri: 'dns://_http._tcp.greeter',
+    sdUri: 'dns://_http._tcp.greeter?intervalMs=100',
   });
 
   await helper.waitForReady();

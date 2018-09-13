@@ -225,6 +225,20 @@ test('#helper throws error when resolver not supported', async t => {
   }
 });
 
+test('#helper throws error when dns add error', async t => {
+  try {
+    (new GRPCHelper({
+      packageName: 'helloworld',
+      serviceName: 'Greeter',
+      protoPath: path.resolve(__dirname, './hello.proto'),
+      sdUri: 'dns://?a=a',
+    }));
+  } catch (e) {
+    t.is(e.name, 'GRPCHelperError');
+    t.is(e.message, 'invalid pathname');
+  }
+});
+
 test('#helper server error', async t => {
   const { servers, stopServers } = startServers(1, { alwaysError: true });
   const list = _.map(servers, s => `localhost:${s.port}`).join(',');

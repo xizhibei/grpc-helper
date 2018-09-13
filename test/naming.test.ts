@@ -14,7 +14,7 @@ import { DNSResolver, UpdateOp } from '../src/naming';
 
 test('#naming dns resolver', async t => {
   const resolver = new DNSResolver();
-  const watcher = resolver.resolve('test');
+  const watcher = resolver.resolve('_grpc._tcp.test?intervalMs=100');
 
   srvRecords = _.map([1111, 2222, 3333], port => {
     return <SrvRecord>{
@@ -67,4 +67,6 @@ test('#naming dns resolver', async t => {
     t.is(update.op, UpdateOp.ADD);
     t.is(update.addr, 'localhost:4444');
   });
+
+  watcher.close();
 });
