@@ -40,7 +40,8 @@ const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
   protoPath: path.resolve(__dirname, './hello.proto'),
-  sdUri: 'dns://_grpc._tcp.greeter',
+  // intervalMs will determine how frequent the resolver lookup the records
+  sdUri: 'dns://_grpc._tcp.greeter?intervalMs=5000',
 });
 
 await helper.waitForReady();
