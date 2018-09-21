@@ -2,8 +2,6 @@
 
 gRPC helper is an improved gRPC client with lots of helpful features.
 
-**WARNING: in beta !!!**
-
 [![Build Status](https://travis-ci.org/xizhibei/grpc-helper.svg?branch=master&style=flat)](https://travis-ci.org/xizhibei/grpc-helper)
 [![Coverage Status](https://coveralls.io/repos/github/xizhibei/grpc-helper/badge.svg?branch=master)](https://coveralls.io/github/xizhibei/grpc-helper?branch=master)
 [![npm version](https://badge.fury.io/js/grpc-helper.svg?style=flat)](http://badge.fury.io/js/grpc-helper)
