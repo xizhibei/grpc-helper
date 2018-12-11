@@ -99,7 +99,7 @@ export class DNSWatcher extends EventEmitter implements Watcher {
   }
 
   private async update(): Promise<void> {
-    let addrs = _.values(this.addrMap)
+    let addrs = _.values(this.addrMap);
     try {
       addrs = await this.resolveAddrs();
     } catch (err) {
