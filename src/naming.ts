@@ -54,9 +54,10 @@ export class DNSResolver implements Resolver {
 
     return new DNSWatcher(async function(): Promise<Address[]> {
       const resolveSrv = Promise.promisify(dns.resolveSrv);
-      const recoreds = await resolveSrv(pathname);
 
-      return _.map(recoreds, record => {
+      const records = await resolveSrv(pathname);
+
+      return _.map(records, record => {
         return <Address>{
           addr: `${record.name}:${record.port}`,
         };
@@ -84,22 +85,28 @@ interface AddrMap {
 }
 
 export class DNSWatcher extends EventEmitter implements Watcher {
-  private intervalMs: number;
   private addrMap: AddrMap = {};
   private resolveAddrs: () => Promise<Address[]>;
   private updates: Update[] = [];
+  private interval: NodeJS.Timer;
 
   constructor(resolveAddrs: () => Promise<Address[]>, intervalMs: number = 5000) {
     super();
 
-    this.intervalMs = intervalMs;
     this.resolveAddrs = resolveAddrs;
 
     this.update();
+    this.interval = setInterval(this.update.bind(this), intervalMs);
   }
 
   private async update(): Promise<void> {
-    const addrs = await this.resolveAddrs();
+    let addrs = null;
+    try {
+      addrs = await this.resolveAddrs();
+    } catch (e) {
+      this.emit('error', e);
+      return;
+    }
 
     const newAddrMap = _.keyBy(addrs, 'addr');
 
@@ -126,8 +133,6 @@ export class DNSWatcher extends EventEmitter implements Watcher {
     }
 
     this.addrMap = newAddrMap;
-
-    setTimeout(this.update.bind(this), this.intervalMs);
   }
 
   public async next(): Promise<Update[]> {
@@ -143,6 +148,7 @@ export class DNSWatcher extends EventEmitter implements Watcher {
   }
 
   public async close(): Promise<void> {
+    clearInterval(this.interval);
   }
 }
 
