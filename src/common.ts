@@ -181,8 +181,8 @@ interface RetryOpts extends NodeRetryOpts {
 export interface GRPCHelperOpts {
   /**
    * Service discovery uri
-   * static://1.1.1.1:1234,2.2.2.2:1234
-   * dns://_grpc._tcp.servicename
+   * ex1: `static://1.1.1.1:1234,2.2.2.2:1234`
+   * ex2: `dns://_grpc._tcp.servicename`
    */
   sdUri: string;
 
@@ -203,8 +203,9 @@ export interface GRPCHelperOpts {
 
   /**
    * Should grpc promised call return full response,
-   * if true, it will resolve with status, metadata, peer and message
-   * default is false, only message will be resolved
+   * if true, it will resolve with `status, metadata, peer and message`
+   *   ### Default: false
+   *   Which means only message will be resolved
    */
   resolveFullResponse?: boolean;
 
@@ -215,6 +216,16 @@ export interface GRPCHelperOpts {
 
   /**
    * grpc proto loader options, used in load the proto file
+   *   ### Default:
+   *   ```js
+   *   {
+   *     keepCase: true,
+   *     longs: String,
+   *     enums: String,
+   *     defaults: true,
+   *     oneofs: true
+   *   }
+   *   ```
    */
   grpcProtoLoaderOpts?: GRPCProtoLoaderOptions;
 
@@ -226,15 +237,17 @@ export interface GRPCHelperOpts {
   /**
    * hostname override, override the default hostname,
    * by setting following two grpc opts:
+   * ```
    * grpc.ssl_target_name_override
    * grpc.default_authority
+   * ```
    */
   hostNameOverride?: string;
 
   /**
-   * Global timeout is million seconds
-   * If set to 0, timeout is disabled
-   * Default: 5000
+   * Global timeout is million seconds,
+   * set 0 to disable
+   * ### Default: 5000
    */
   timeoutInMS?: number;
 
@@ -250,11 +263,13 @@ export interface GRPCHelperOpts {
 
   /**
    * Whether enable prometheus metrics
-   *   name: grpc_response_duration_seconds
-   *   type: histogram
-   *   labels: peer,method,code
+   * ```
+   * name: grpc_response_duration_seconds
+   * type: histogram
+   * labels: peer,method,code
+   * ```
    *
-   * Default: true
+   * ### Default: true
    */
   metrics?: boolean;
 
