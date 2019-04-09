@@ -41,17 +41,8 @@ export class HelperClientCreator implements ClientFactory {
   }
 
   private setupSvcDefs() {
-    const { packageName: pkg, serviceName: svc } = this.opts;
-    const packageDefinition = protoLoader.loadSync(
-      this.opts.protoPath,
-      {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true
-      }
-    );
+    const { packageName: pkg, serviceName: svc, grpcProtoLoaderOpts: opts } = this.opts;
+    const packageDefinition = protoLoader.loadSync(this.opts.protoPath, opts);
     this.Service = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
 
     this.serviceDefinition = packageDefinition[`${pkg}.${svc}`];

@@ -1,4 +1,5 @@
 import { Client } from 'grpc';
+import { Options as GRPCProtoLoaderOptions } from '@grpc/proto-loader';
 import { Options as NodeRetryOpts } from 'async-retry';
 
 export class GRPCHelperError extends Error {
@@ -211,6 +212,11 @@ export interface GRPCHelperOpts {
    * grpc options, used in create new instance of grpc client
    */
   grpcOpts?: GRPCOpts;
+
+  /**
+   * grpc proto loader options, used in load the proto file
+   */
+  grpcProtoLoaderOpts?: GRPCProtoLoaderOptions;
 
   /**
    * grpc ssl options, used in create new instance of grpc client

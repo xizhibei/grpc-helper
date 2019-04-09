@@ -42,6 +42,14 @@ export class GRPCHelper {
       enable: false,
     }, opts.retryOpts);
 
+    this.opts.grpcProtoLoaderOpts = Object.assign({
+      keepCase: true,
+      longs: String,
+      enums: String,
+      defaults: true,
+      oneofs: true
+    }, opts.grpcProtoLoaderOpts);
+
     const clientCreator: HelperClientCreator = new HelperClientCreator(this.opts);
 
     const { type, addr } = this.parseSDUri(this.opts.sdUri);
