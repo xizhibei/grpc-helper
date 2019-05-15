@@ -1,6 +1,7 @@
 language: node_js
 
 node_js:
+  - 12
   - 10
   - 8
   - 6
@@ -12,7 +13,6 @@ cache:
   - $HOME/.yarn-cache
 
 install:
-  - sed -i 's/http:\/\/registry.npm.taobao.org/https:\/\/registry.yarnpkg.com/g' yarn.lock
   - yarn install --ignore-engines
 
 script:
