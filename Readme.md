@@ -28,7 +28,10 @@ yarn add grpc-helper
 - Client Load balance
 - Service health checking
 - Service discovery (static, dns srv)
-- Circuit breaker
+- Circuit breaker based on [Brakes](https://github.com/awolden/brakes)
+- Retry based on [async-retry](https://github.com/zeit/async-retry)
+- Metrics for [prometheus](https://prometheus.io/) based on [prom-client](https://github.com/siimon/prom-client)
+- Highly custom [options](src/common.ts)
 
 ### Usage
 
