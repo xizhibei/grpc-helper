@@ -1,6 +1,6 @@
 {
   "name": "grpc-helper",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "gRPC helper, an improved gRPC client for grpc-node",
   "main": "dist/src/index.js",
   "scripts": {
