@@ -1,11 +1,20 @@
 import * as path from 'path';
 
-import test from 'ava';
+import anyTest, {TestInterface} from 'ava';
 import * as _ from 'lodash';
 import * as grpc from 'grpc';
 
 import { startMethoodTestServer } from './server';
 import { GRPCHelper } from '../src';
+
+interface Context {
+  port: number;
+  stopServer: any;
+  helper: GRPCHelper;
+  metadata: grpc.Metadata;
+}
+
+const test = anyTest as TestInterface<Context>;
 
 test.beforeEach(async t => {
   const { port, stopServer } = startMethoodTestServer();
@@ -33,7 +42,7 @@ test.afterEach.always(async t => {
 
 test.cb('#test service unary', t => {
   const call = t.context.helper.cbUnary({}, t.context.metadata, function (err, data) {
-    t.ifError(err);
+    t.falsy(err);
   });
   call.on('metadata', function (metadata) {
     t.deepEqual(metadata.get('key'), ['value']);
@@ -43,7 +52,7 @@ test.cb('#test service unary', t => {
 
 test.cb('#test service clientStream', t => {
   const call = t.context.helper.cbClientStream(t.context.metadata, function (err, data) {
-    t.ifError(err);
+    t.falsy(err);
   });
   call.on('metadata', function (metadata) {
     t.deepEqual(metadata.get('key'), ['value']);
