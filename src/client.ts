@@ -45,7 +45,7 @@ export class HelperClientCreator implements ClientFactory {
     const packageDefinition = protoLoader.loadSync(this.opts.protoPath, opts);
     this.Service = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
 
-    this.serviceDefinition = packageDefinition[`${pkg}.${svc}`];
+    this.serviceDefinition = <protoLoader.ServiceDefinition>packageDefinition[`${pkg}.${svc}`];
 
     _.each(this.serviceDefinition, (md, methodName) => {
       this.methodNames.push(methodName);
