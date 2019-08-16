@@ -11,7 +11,7 @@ cache:
   - $HOME/.yarn-cache
 
 install:
-  - yarn install --ignore-engines
+  - yarn install
 
 script:
   - npm run lint
