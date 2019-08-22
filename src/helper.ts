@@ -8,7 +8,7 @@ import * as retry from 'async-retry';
 import { GRPCHelperOpts, GRPCHelperError } from './common';
 import { RoundRobinBalancer, Balancer } from './lb';
 import { HelperClientCreator, ClientFactory } from './client';
-import { Resolver, DNSResolver, StaticResolver } from './naming';
+import { Resolver, DNSResolver, StaticResolver, EtcdV3Resolver } from './naming';
 
 const log = debug('grpcHelper:helper');
 
@@ -60,6 +60,8 @@ export class GRPCHelper {
       resolver = new DNSResolver();
     } else if (type === 'static') {
       resolver = new StaticResolver();
+    } else if (type === 'etcdv3') {
+      resolver = new EtcdV3Resolver();
     } else {
       throw new GRPCHelperError(`resolver not implemented: ${type}`);
     }

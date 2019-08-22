@@ -68,6 +68,22 @@ const res = await helper.SayHello({
 });
 ```
 
+#### ETCDV3 Service discovery
+```ts
+const helper = new GRPCHelper({
+  packageName: 'helloworld',
+  serviceName: 'Greeter',
+  protoPath: path.resolve(__dirname, './hello.proto'),
+  sdUri: 'etcdv3://base-user?localhost:2379,localhost:2380,localhost:2381',//base-user prefix for etcd. localhost:2379,localhost:2380,localhost:2381 etcd cluster address.
+});
+
+await helper.waitForReady();
+
+const res = await helper.SayHello({
+  name: 'foo',
+});
+```
+
 #### Resolve with full response
 ```ts
 const helper = new GRPCHelper({
