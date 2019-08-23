@@ -5,6 +5,7 @@
     "target": "es5",
     "sourceMap": true,
     "module": "commonjs",
+    "skipLibCheck": true,
     "lib": [
       "es2016"
     ],

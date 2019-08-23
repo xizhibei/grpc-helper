@@ -34,6 +34,7 @@ export function getBrakeHealthCheckFunc(service: string, host: string, opts: Get
     }
   );
 
+  // @ts-ignore
   const HealthService = grpc.loadPackageDefinition(packageDefinition).grpc.health.v1.Health;
 
   let healthClient = new HealthService(host, opts.grpcCredentials, opts.grpcOpts);

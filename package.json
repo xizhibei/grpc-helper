@@ -4,7 +4,7 @@
   "description": "gRPC helper, an improved gRPC client for grpc-node",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "tsc && ava",
+    "test": "npm run postbuild && tsc && cd dist && ava",
     "coverage": "nyc npm test",
     "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
     "coverage-ci": "nyc npm test && nyc report --reporter=text-lcov | coveralls",

@@ -262,10 +262,12 @@ export class EtcdV3Watcher extends EventEmitter implements Watcher {
       .on('put', (res) => {
         log('etcdv3 put', res.value.toString());
         this.add_server(res.value.toString())
+        this.update()
       })
       .on('delete', (res) => {
         log('etcdv3 delete', res.key.toString());
         this.del_server(res.key.toString())
+        this.update()
       })
 
     this.emit('updates');
