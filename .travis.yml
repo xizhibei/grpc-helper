@@ -7,6 +7,9 @@ node_js:
   - 6
   - 4
 
+servers:
+  - etcd
+
 cache:
   directories:
   - $HOME/.npm
