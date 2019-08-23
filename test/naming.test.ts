@@ -74,7 +74,7 @@ test('#naming dns resolver', async t => {
 
 test('#naming etcd3 resolver', async t => {
   const pathKey: string = 'test-user';
-  const client: etcdv3.Etcd3 = new etcdv3.Etcd3({ hosts: 'localhost:2379'});
+  const client: etcdv3.Etcd3 = new etcdv3.Etcd3({ hosts: '127.0.0.1:2379'});
   const lease = client.lease(10);
   await Promise.all(_.map([1111, 2222, 3333], async port => {
     const pathValue = {
