@@ -52,9 +52,10 @@ export class HelperClientCreator implements ClientFactory {
         oneofs: true
       }
     );
-    this.Service = grpc.loadPackageDefinition(packageDefinition)[pkg][svc];
+    let servicePath = `${pkg}.${svc}`
+    this.Service = _.get(grpc.loadPackageDefinition(packageDefinition), servicePath)
 
-    this.serviceDefinition = packageDefinition[`${pkg}.${svc}`];
+    this.serviceDefinition = packageDefinition[servicePath];
 
     _.each(this.serviceDefinition, (md, methodName) => {
       this.methodNames.push(methodName);
