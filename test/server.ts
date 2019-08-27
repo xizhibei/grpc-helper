@@ -36,6 +36,7 @@ const health = grpc.loadPackageDefinition(protoLoader.loadSync(
     defaults: true,
     oneofs: true
   }
+  // @ts-ignore
 )).grpc.health.v1;
 
 interface StartServerOpts {
@@ -46,6 +47,7 @@ interface StartServerOpts {
 
 export function startServer(id: number, opts: StartServerOpts = <StartServerOpts>{}) {
   const server = new grpc.Server();
+  // @ts-ignore
   server.addService(hello.Greeter.service, {
     SayHello(call, callback) {
       const { name } = call.request;
@@ -114,6 +116,7 @@ export function startServer(id: number, opts: StartServerOpts = <StartServerOpts
 
 export function startMethoodTestServer() {
   const server = new grpc.Server();
+  // @ts-ignore
   server.addService(test.TestService.service, {
     unary(call, cb) {
       call.sendMetadata(call.metadata);
