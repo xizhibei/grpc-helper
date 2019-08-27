@@ -4,7 +4,7 @@
   "description": "gRPC helper, an improved gRPC client for grpc-node",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "tsc && ava",
+    "test": "npm run postbuild && tsc && cd dist && ava",
     "coverage": "nyc npm test",
     "lint": "tslint --format prose src/**/*.ts test/**/*.ts",
     "coverage-ci": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
@@ -62,6 +62,7 @@
     "bluebird": "^3.5.0",
     "brakes": "^2.6.0",
     "debug": "^3.1.0",
+    "etcd3": "^0.2.13",
     "grpc": "^1.14.2",
     "lodash": "^4.17.10",
     "prom-client": "^10.2.3"

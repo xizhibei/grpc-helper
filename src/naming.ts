@@ -6,6 +6,8 @@ import { EventEmitter } from 'events';
 import * as Bluebird from 'bluebird';
 import * as debug from 'debug';
 import * as _ from 'lodash';
+import * as etcd3 from 'etcd3';
+
 import { GRPCHelperError } from './common';
 
 Promise = Bluebird as any;
@@ -52,7 +54,7 @@ export class DNSResolver implements Resolver {
     const { pathname, query } = this.parseUrl(target);
     log('parse target into basename %s, query %j', pathname, query);
 
-    return new DNSWatcher(async function(): Promise<Address[]> {
+    return new DNSWatcher(async function (): Promise<Address[]> {
       const resolveSrv = Promise.promisify(dns.resolveSrv);
 
       const records = await resolveSrv(pathname);
@@ -68,7 +70,7 @@ export class DNSResolver implements Resolver {
 
 export class StaticResolver implements Resolver {
   resolve(target: string): Watcher {
-    return new StaticWatcher(async function(): Promise<Address[]> {
+    return new StaticWatcher(async function (): Promise<Address[]> {
       const hosts = target.split(',');
 
       return _.map(hosts, host => {
@@ -80,6 +82,20 @@ export class StaticResolver implements Resolver {
   }
 }
 
+export class EtcdV3Resolver implements Resolver {
+  parseUrl(target: string): any {
+    const { query, pathname } = url.parse(target);
+    if (!pathname) throw new GRPCHelperError('invalid pathname');
+    return { pathname, query: query.split(',') };
+  }
+
+  resolve(target: string): Watcher {
+    const { pathname, query } = this.parseUrl(target)
+    log('parse target into basename %s, query %j', pathname, query);
+
+    return new EtcdV3Watcher(query, `/${pathname}`);
+  }
+}
 interface AddrMap {
   [addr: string]: Address;
 }
@@ -178,7 +194,92 @@ export class StaticWatcher extends EventEmitter implements Watcher {
   public async next(): Promise<Update[]> {
     return new Promise<Update[]>(resolve => {
       this.once('updates', () => {
-        if (this.updates.length) {          resolve(this.updates);
+        if (this.updates.length) {
+          resolve(this.updates);
+          this.updates = [];
+        }
+      });
+    });
+  }
+
+  public async close(): Promise<void> {
+  }
+}
+
+export class EtcdV3Watcher extends EventEmitter implements Watcher {
+  private updates: Update[] = [];
+  private client: etcd3.Etcd3;
+  private pathKey: string = '';
+
+  constructor(addr: string[], pathKey: string) {
+    super();
+
+    this.pathKey = pathKey;
+    this.client = new etcd3.Etcd3({ hosts: addr })
+    this.init();
+  }
+
+  private async init(): Promise<void> {
+    const servers = await this.client.getAll().prefix(this.pathKey).json();
+    this.init_server(servers)
+
+    this.emit('updates');
+    this.update();
+  }
+
+  private async init_server(servers) {
+    _.each(servers, (v, k) => {
+      this.updates.push(<Update>{
+        op: UpdateOp.ADD,
+        addr: v.addr,
+      });
+    })
+  }
+
+  private async add_server(server: string) {
+    const serverObj = JSON.parse(server)
+    this.updates.push(<Update>{
+      op: UpdateOp.ADD,
+      addr: serverObj.addr,
+    });
+
+    this.emit('updates');
+  }
+
+  private async del_server(server: string) {
+    const arr = server.split('/')
+    this.updates.push(<Update>{
+      op: UpdateOp.DEL,
+      addr: arr[2],
+    });
+
+    this.emit('updates');
+  }
+
+  private async update(): Promise<void> {
+    const watcher = await this.client.watch().prefix(this.pathKey).create();
+
+    watcher
+      .on('put', (res) => {
+        log('etcdv3 put', res.value.toString());
+        this.add_server(res.value.toString())
+        this.update()
+      })
+      .on('delete', (res) => {
+        log('etcdv3 delete', res.key.toString());
+        this.del_server(res.key.toString())
+        this.update()
+      })
+
+    this.emit('updates');
+  }
+
+  public async next(): Promise<Update[]> {
+    log('wait for updates');
+    return new Promise<Update[]>(resolve => {
+      this.once('updates', () => {
+        if (this.updates.length) {
+          resolve(this.updates);
           this.updates = [];
         }
       });
