@@ -14,7 +14,7 @@ test('#metrics', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
   });
 

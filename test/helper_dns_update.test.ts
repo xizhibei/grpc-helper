@@ -61,7 +61,7 @@ test('#dns service discovery with rolling update server', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: 'dns://_http._tcp.greeter?intervalMs=100',
   });
 

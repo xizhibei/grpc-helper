@@ -35,7 +35,7 @@ test('#dns service discovery && load balance', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: 'dns://_http._tcp.greeter',
   });
 
@@ -86,7 +86,7 @@ test('#static service discovery && load balance', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
   });
 
@@ -137,7 +137,7 @@ test('#helper health check', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     healthCheck: {
       enable: true,
@@ -163,7 +163,7 @@ test('#helper ssl', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     hostNameOverride: 'localhost',
     sslOpts: <GRPCHelperSslOpts>{
@@ -211,12 +211,36 @@ test('#helper ssl', async t => {
   stopServers();
 });
 
+test('#helper package name contains dot', async t => {
+  const { servers, stopServers } = startServers(3, { secure: true });
+  const list = _.map(servers, s => `localhost:${s.port}`).join(',');
+  t.log(list);
+
+  const helper = new GRPCHelper({
+    packageName: 'hello.world.v1',
+    serviceName: 'Greeter',
+    protoPath: path.resolve(__dirname, './fixtures/hello.world.proto'),
+    sdUri: `static://${list}`,
+    hostNameOverride: 'localhost',
+    sslOpts: <GRPCHelperSslOpts>{
+      enable: true,
+      cacert: fs.readFileSync(path.resolve(__dirname, './fixtures/ca.crt')),
+    },
+  });
+
+  await helper.waitForReady();
+
+  stopServers();
+
+  t.pass();
+});
+
 test('#helper throws error when resolver not supported', async t => {
   try {
     (new GRPCHelper({
       packageName: 'helloworld',
       serviceName: 'Greeter',
-      protoPath: path.resolve(__dirname, './hello.proto'),
+      protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
       sdUri: 'unknown://test',
     }));
   } catch (e) {
@@ -230,7 +254,7 @@ test('#helper throws error when dns add error', async t => {
     (new GRPCHelper({
       packageName: 'helloworld',
       serviceName: 'Greeter',
-      protoPath: path.resolve(__dirname, './hello.proto'),
+      protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
       sdUri: 'dns://?a=a',
     }));
   } catch (e) {
@@ -246,7 +270,7 @@ test('#helper server error', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
   });
 
@@ -283,7 +307,7 @@ test('#helper full response', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     resolveFullResponse: true,
   });
@@ -311,7 +335,7 @@ test('#helper client stream full response', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     resolveFullResponse: true,
   });

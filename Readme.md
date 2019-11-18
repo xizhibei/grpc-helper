@@ -40,7 +40,7 @@ yarn add grpc-helper
 const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
-  protoPath: path.resolve(__dirname, './hello.proto'),
+  protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
   // intervalMs will determine how frequent the resolver lookup the records
   sdUri: 'dns://_grpc._tcp.greeter?intervalMs=5000',
 });
@@ -57,7 +57,7 @@ const res = await helper.SayHello({
 const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
-  protoPath: path.resolve(__dirname, './hello.proto'),
+  protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
   sdUri: 'static://localhost:50051,localhost:50052,localhost:50053',
 });
 
@@ -73,7 +73,7 @@ const res = await helper.SayHello({
 const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
-  protoPath: path.resolve(__dirname, './hello.proto'),
+  protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
   sdUri: 'static://localhost:50051',
   resolveFullResponse: true,
 });
@@ -114,7 +114,7 @@ const result = await promise; // { message: 'hello foo1,foo2,foo3' }
 const helper = new GRPCHelper({
   packageName: 'helloworld',
   serviceName: 'Greeter',
-  protoPath: path.resolve(__dirname, './hello.proto'),
+  protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
   sdUri: 'static://localhost:50051',
   retryOpts: {
     enable: true,

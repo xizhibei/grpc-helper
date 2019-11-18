@@ -19,7 +19,7 @@ test('#retry when error', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     retryOpts: {
       enable: true,
@@ -51,7 +51,7 @@ test('#retry ignore error', async t => {
   const helper = new GRPCHelper({
     packageName: 'helloworld',
     serviceName: 'Greeter',
-    protoPath: path.resolve(__dirname, './hello.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/hello.proto'),
     sdUri: `static://${list}`,
     retryOpts: {
       enable: true,

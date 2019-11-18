@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package hello.world.v1;
+
+// The greeting service definition.
+service Greeter {
+    //   Sends a greeting
+    rpc SayHello (HelloRequest) returns (HelloReply) {
+    }
+
+    rpc SayMultiHello (stream HelloRequest) returns (HelloReply) {
+    }
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+    string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+    string message = 1;
+    int32 serverId = 2;
+}

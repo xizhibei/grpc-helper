@@ -18,7 +18,7 @@ test.beforeEach(async t => {
   const helper = new GRPCHelper({
     packageName: 'test',
     serviceName: 'TestService',
-    protoPath: path.resolve(__dirname, './test.proto'),
+    protoPath: path.resolve(__dirname, './fixtures/test.proto'),
     sdUri: `static://localhost:${port}`,
   });
 

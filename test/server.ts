@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import * as protoLoader from '@grpc/proto-loader';
 
 const hello = grpc.loadPackageDefinition(protoLoader.loadSync(
-  path.resolve(__dirname, './hello.proto'),
+  path.resolve(__dirname, './fixtures/hello.proto'),
   {
     keepCase: true,
     longs: String,
@@ -16,8 +16,19 @@ const hello = grpc.loadPackageDefinition(protoLoader.loadSync(
   }
 )).helloworld;
 
+const helloV1 = grpc.loadPackageDefinition(protoLoader.loadSync(
+  path.resolve(__dirname, './fixtures/hello.world.proto'),
+  {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  }
+)).hello.world.v1;
+
 const test = grpc.loadPackageDefinition(protoLoader.loadSync(
-  path.resolve(__dirname, './test.proto'),
+  path.resolve(__dirname, './fixtures/test.proto'),
   {
     keepCase: true,
     longs: String,
